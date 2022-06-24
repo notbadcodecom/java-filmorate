@@ -23,18 +23,18 @@ public class FilmController {
 
     @GetMapping
     public List<Film> getFilms() {
-        log.debug("Get movies. Total movies: {}", films.size());
+        log.debug("Total movies: {}", films.size());
         return new ArrayList<>(films.values());
     }
 
-    @PostMapping("/add")
+    @PostMapping
     public Film addFilm(@Valid @RequestBody Film film, Errors errors) {
         if (errors.hasErrors()) {
             List<String> messages = errors.getAllErrors().stream()
-                    .peek(e -> log.debug(e.getDefaultMessage()))
+                    .peek(e -> log.debug("Validation error: {}", e.getDefaultMessage()))
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .collect(Collectors.toList());
-            throw new ValidationException(String.join("; ", messages) + ".");
+            throw new ValidationException(String.join("; ", messages));
         }
         film.setId(++filmIdCounter);
         films.put(film.getId(), film);
@@ -42,20 +42,18 @@ public class FilmController {
         return film;
     }
 
-    @PutMapping("/update")
-    public Film updateFilm(@Valid @RequestBody Film film, Errors errors) {
-        if (errors.hasErrors() || films.get(film.getId()) == null) {
-            List<String> messages = errors.getAllErrors().stream()
-                    .peek(e -> log.debug(e.getDefaultMessage()))
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .collect(Collectors.toList());
-            if (films.get(film.getId()) == null) {
-                String message = "Invalid or no specified id";
-                log.debug(message);
-                messages.add(message);
-            }
-            throw new ValidationException(String.join("; ", messages) + ".");
+    @PutMapping
+    public Film updateFilm(@RequestBody Film film) {
+        Film updatedFilm = films.get(film.getId());
+        if (updatedFilm == null) {
+            String message = "Invalid or no specified film id";
+            log.debug("Validation error: " + message);
+            throw new ValidationException(message);
         }
+        if (film.getDescription() == null) film.setDescription(updatedFilm.getDescription());
+        if (film.getReleaseDate() == null) film.setReleaseDate(updatedFilm.getReleaseDate());
+        if (film.getDuration() == null) film.setDuration(updatedFilm.getDuration());
+        if (film.getName() == null) film.setName(updatedFilm.getName());
         films.put(film.getId(), film);
         log.debug("Update movie: {}", film);
         return film;

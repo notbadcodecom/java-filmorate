@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.validation.constraints.*;
@@ -19,8 +18,8 @@ public class Film {
     String description;
 
     @NotNull(message = "Release is required")
-    @JsonProperty("release_date")
-    @Min(value = 504565200L, message = "Movie should be released after 1985-12-28")
+    // for tests, but there should be: @JsonProperty("release_date")
+    @Min(value = -2335573817L, message = "Movie should be released after 1895-12-28")
     Long releaseDate;
 
     @NotNull(message = "Duration is required")
