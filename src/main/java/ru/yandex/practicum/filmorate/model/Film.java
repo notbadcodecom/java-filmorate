@@ -1,36 +1,37 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import ru.yandex.practicum.filmorate.validation.Create;
+import ru.yandex.practicum.filmorate.validation.Update;
+import ru.yandex.practicum.filmorate.validation.CreationDateValidation;
+import ru.yandex.practicum.filmorate.validation.CreatedFilmValidation;
 
 import javax.validation.constraints.*;
 import java.time.*;
 
 @Data
 public class Film {
-
+    @NotNull(message = "ID is required", groups = {Update.class})
+    @CreatedFilmValidation(groups = {Update.class})
     int id;
 
-    @NotBlank(message = "Name should be not blank")
+    @NotBlank(message = "Name should be not blank", groups = {Create.class})
     String name;
 
-    @NotNull(message = "Description is required")
-    @Size(max = 200, message = "Description should be less 200 then characters")
+    @NotNull(message = "Description is required", groups = {Create.class})
+    @Size(
+            max = 200,
+            message = "Description should be less 200 then characters",
+            groups = {Create.class, Update.class}
+    )
     String description;
 
-    @NotNull(message = "Release is required")
+    @NotNull(message = "Release is required", groups = {Create.class})
     // for tests, but there should be: @JsonProperty("release_date")
-    @Min(value = -2335573817L, message = "Movie should be released after 1895-12-28")
-    Long releaseDate;
+    @CreationDateValidation(groups = {Create.class, Update.class})
+    LocalDate releaseDate;
 
-    @NotNull(message = "Duration is required")
-    @Positive(message = "Duration should be positive")
+    @NotNull(message = "Duration is required", groups = {Create.class})
+    @Positive(message = "Duration should be positive", groups = {Create.class, Update.class})
     Long duration;
-
-    public LocalDate getReleaseDate() {
-        return Instant.ofEpochSecond(releaseDate).atOffset(ZoneOffset.UTC).toLocalDate();
-    }
-
-    public void setReleaseDate(LocalDate date) {
-        releaseDate = date.toEpochSecond(LocalTime.ofSecondOfDay(0), ZoneOffset.UTC);
-    }
 }

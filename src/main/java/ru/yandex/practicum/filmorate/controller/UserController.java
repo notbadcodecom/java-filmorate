@@ -2,12 +2,16 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.validation.Errors;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.data.inMemoryData;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.validation.Create;
+import ru.yandex.practicum.filmorate.validation.Update;
 
-import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -16,59 +20,47 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 public class UserController {
 
-    private int userIdCounter = 0;
-    private final Map<Integer, User> users = new HashMap<>();
-    private final Set<String> emails = new HashSet<>();
+    inMemoryData data = inMemoryData.getInstance();
 
     @GetMapping
     public List<User> getUsers() {
-        log.info("Total users: {}", users.size());
-        return new ArrayList<>(users.values());
+        log.debug("Total users [{}]", data.getUsers().size());
+        return data.getUsers();
     }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User user, Errors errors) {
-        if (errors.hasErrors() || emails.contains(user.getEmail())) {
-            List<String> messages = errors.getAllErrors().stream()
-                    .peek(e -> log.debug("Validation error: {}", e.getDefaultMessage()))
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .collect(Collectors.toList());
-            if (emails.contains(user.getEmail())) {
-                String message = "Email already in use";
-                log.debug("Validation error: " + message);
-                messages.add(message);
-            }
-            throw new ValidationException(String.join("; ", messages) + ".");
-        }
+    public User create(@Validated(Create.class) @RequestBody User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        user.setId(++userIdCounter);
-        users.put(user.getId(), user);
-        emails.add(user.getEmail());
-        log.debug("Add user: {}", user);
+        user.setId(data.getUserId());
+        data.addUser(user);
+        log.debug("Add user [{}]", user);
         return user;
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user) {
-        User updatedUser = users.get(user.getId());
-        if (updatedUser == null) {
-            String message = "Invalid or no specified user id";
-            log.debug("Validation error: " + message);
-            throw new ValidationException(message);
-        }
-        if (emails.contains(user.getEmail()) && !user.getEmail().equals(updatedUser.getEmail())) {
-            String message = "Email already in use";
-            log.debug("Validation error: " + message);
-            throw new ValidationException(message);
+    public User update(@Validated(Update.class) @RequestBody User user) {
+        User updatedUser = data.getUser(user.getId());
+        if (!updatedUser.getEmail().equals(user.getEmail())) {
+            data.removeEmail(data.getUser(user.getId()).getEmail());
         }
         if (user.getBirthday() == null) user.setBirthday(updatedUser.getBirthday());
         if (user.getLogin() == null) user.setLogin(updatedUser.getLogin());
         if (user.getEmail() == null) user.setEmail(updatedUser.getEmail());
-        users.put(user.getId(), user);
-        emails.add(user.getEmail());
-        log.debug("Update user: {}", user);
+        data.addUser(user);
+        log.debug("Update user [{}]", user);
         return user;
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        return ex.getBindingResult().getFieldErrors().stream()
+                .peek(e -> log.debug("Validation error [{}]", e.getDefaultMessage()))
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        DefaultMessageSourceResolvable::getDefaultMessage
+                ));
     }
 }
