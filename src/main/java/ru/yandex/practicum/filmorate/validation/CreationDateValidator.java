@@ -6,6 +6,6 @@ import java.time.LocalDate;
 
 public class CreationDateValidator implements ConstraintValidator<CreationDateValidation, LocalDate> {
     public boolean isValid(LocalDate date, ConstraintValidatorContext cxt) {
-        return date.isAfter(LocalDate.of(1895, 12, 28));
+        return date == null || date.isAfter(LocalDate.of(1895, 12, 27));
     }
 }
