@@ -23,12 +23,14 @@ public class UserController {
     inMemoryData data = inMemoryData.getInstance();
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<User> getUsers() {
         log.debug("Total users [{}]", data.getUsers().size());
         return data.getUsers();
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public User create(@Validated(Create.class) @RequestBody User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
@@ -40,6 +42,7 @@ public class UserController {
     }
 
     @PutMapping
+    @ResponseStatus(HttpStatus.OK)
     public User update(@Validated(Update.class) @RequestBody User user) {
         User updatedUser = data.getUser(user.getId());
         if (!updatedUser.getEmail().equals(user.getEmail())) {

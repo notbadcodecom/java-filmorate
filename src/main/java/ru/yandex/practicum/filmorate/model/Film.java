@@ -11,7 +11,6 @@ import java.time.*;
 
 @Data
 public class Film {
-    @NotNull(message = "ID is required", groups = {Update.class})
     @CreatedFilmValidation(groups = {Update.class})
     int id;
 

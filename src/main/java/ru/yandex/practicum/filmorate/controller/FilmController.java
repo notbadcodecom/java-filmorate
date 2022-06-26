@@ -47,7 +47,7 @@ public class FilmController {
         if (film.getDescription() == null) film.setDescription(updatedFilm.getDescription());
         if (film.getReleaseDate() == null) film.setReleaseDate(updatedFilm.getReleaseDate());
         if (film.getDuration() == null) film.setDuration(updatedFilm.getDuration());
-        if (film.getName() == null) film.setName(updatedFilm.getName());
+        if (film.getName() == null || film.getName().isBlank()) film.setName(updatedFilm.getName());
         data.addFilm(film);
         log.debug("Update movie [{}]", film);
         return film;

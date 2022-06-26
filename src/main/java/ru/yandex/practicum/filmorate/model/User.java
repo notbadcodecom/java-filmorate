@@ -11,13 +11,12 @@ import java.time.LocalDate;
 
 @Data
 public class User {
-    @NotNull(message = "ID is required", groups = {Update.class})
     @CreatedUserValidation(groups = {Update.class})
     int id;
 
     @NotNull(message = "Email is required", groups = {Create.class})
     @Email(message = "Invalid email", groups = {Create.class, Update.class})
-    @UsedEmailValidation(groups = {Update.class})
+    @UsedEmailValidation(groups = {Create.class, Update.class})
     String email;
 
     @NotBlank(message = "Login is required", groups = {Create.class})
