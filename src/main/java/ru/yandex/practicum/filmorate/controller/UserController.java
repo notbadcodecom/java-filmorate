@@ -7,7 +7,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.data.inMemoryData;
+import ru.yandex.practicum.filmorate.data.InMemoryData;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validation.Create;
 import ru.yandex.practicum.filmorate.validation.Update;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 public class UserController {
 
-    inMemoryData data = inMemoryData.getInstance();
+    private final InMemoryData data = InMemoryData.getInstance();
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)

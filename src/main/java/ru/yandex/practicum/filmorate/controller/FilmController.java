@@ -8,7 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import ru.yandex.practicum.filmorate.data.inMemoryData;
+import ru.yandex.practicum.filmorate.data.InMemoryData;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.validation.Create;
 import ru.yandex.practicum.filmorate.validation.Update;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/films")
 public class FilmController {
 
-    inMemoryData data = inMemoryData.getInstance();
+    private final InMemoryData data = InMemoryData.getInstance();
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
