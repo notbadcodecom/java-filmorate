@@ -5,15 +5,15 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
 
-public class inMemoryData {
-    private static final inMemoryData instance = new inMemoryData();
+public class InMemoryData {
+    private static final InMemoryData instance = new InMemoryData();
     private static int filmIdCounter = 0;
     private static int userIdCounter = 0;
     private static final Map<Integer, Film> films = new HashMap<>();
     private static final Map<Integer, User> users = new HashMap<>();
     private static final Set<String> emails = new HashSet<>();
 
-    public static inMemoryData getInstance() {
+    public static InMemoryData getInstance() {
         return instance;
     }
 
