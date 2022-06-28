@@ -89,7 +89,7 @@ class UserControllerTest {
     public void shouldReturnErrorMessageIfInvalidLogin() throws Exception {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\": \"user@domen.com\", " +
+                        .content("{\"email\": \"user5@domen.com\", " +
                                 "\"login\": \"user.login_login_login-login-login-login-login-login\", " +
                                 "\"name\": \"User Name\"," +
                                 "\"birthday\": \"1988-04-01\"}"))
