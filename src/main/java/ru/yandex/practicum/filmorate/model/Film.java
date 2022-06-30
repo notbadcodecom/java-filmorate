@@ -24,7 +24,7 @@ public class Film extends Id {
 
     @NotNull(message = "Release is required", groups = {Create.class})
     // for tests, but there should be: @JsonProperty("release_date")
-    @CreationDateValidation(groups = {Create.class, Update.class})
+    @LocalDateMinValidation(value = "1895-12-28", groups = {Create.class, Update.class})
     LocalDate releaseDate;
 
     @NotNull(message = "Duration is required", groups = {Create.class})

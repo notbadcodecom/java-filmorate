@@ -6,6 +6,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.time.LocalDate;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.PARAMETER;
@@ -13,9 +14,11 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Target( {FIELD, PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = CreationDateValidator.class)
-public @interface CreationDateValidation {
-    String message() default "Movie should be released after 1895-12-28";
+@Constraint(validatedBy = LocalDateMinValidator.class)
+public @interface LocalDateMinValidation {
+    String message() default "Movie should be released after {value}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
+
+    String value();
 }
