@@ -86,7 +86,8 @@ class FilmControllerTest {
                                 "\"releaseDate\": \"1975-03-14\"," +
                                 "\"duration\": 91}"))
                 .andExpect(status().is5xxServerError())
-                .andExpect(jsonPath("$.description").value("Description should be less 200 then characters"));
+                .andExpect(jsonPath("$.description")
+                        .value("Description should be less 200 characters"));
     }
 
     @Test
