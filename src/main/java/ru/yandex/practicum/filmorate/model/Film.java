@@ -1,26 +1,23 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
-import ru.yandex.practicum.filmorate.validation.Create;
-import ru.yandex.practicum.filmorate.validation.Update;
-import ru.yandex.practicum.filmorate.validation.CreationDateValidation;
-import ru.yandex.practicum.filmorate.validation.CreatedFilmValidation;
+import lombok.EqualsAndHashCode;
+import ru.yandex.practicum.filmorate.validation.*;
 
 import javax.validation.constraints.*;
 import java.time.*;
 
 @Data
-public class Film {
-    @CreatedFilmValidation(groups = {Update.class})
-    int id;
-
+@EqualsAndHashCode(callSuper = true)
+@IdValidation(value = "film", groups = {Update.class})
+public class Film extends Id {
     @NotBlank(message = "Name should be not blank", groups = {Create.class})
     String name;
 
     @NotNull(message = "Description is required", groups = {Create.class})
     @Size(
             max = 200,
-            message = "Description should be less 200 then characters",
+            message = "Description should be less {max} characters",
             groups = {Create.class, Update.class}
     )
     String description;

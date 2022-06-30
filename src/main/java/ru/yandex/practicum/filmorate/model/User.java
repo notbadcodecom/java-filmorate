@@ -1,19 +1,16 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
-import ru.yandex.practicum.filmorate.validation.Create;
-import ru.yandex.practicum.filmorate.validation.Update;
-import ru.yandex.practicum.filmorate.validation.CreatedUserValidation;
-import ru.yandex.practicum.filmorate.validation.UsedEmailValidation;
+import lombok.EqualsAndHashCode;
+import ru.yandex.practicum.filmorate.validation.*;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Data
-public class User {
-    @CreatedUserValidation(groups = {Update.class})
-    int id;
-
+@EqualsAndHashCode(callSuper = true)
+@IdValidation(value = "user", groups = {Update.class})
+public class User extends Id {
     @NotNull(message = "Email is required", groups = {Create.class})
     @Email(message = "Invalid email", groups = {Create.class, Update.class})
     @UsedEmailValidation(groups = {Create.class, Update.class})
