@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -10,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.Storage;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validation.Create;
 import ru.yandex.practicum.filmorate.validation.Update;
 
@@ -22,33 +21,32 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 public class UserController {
 
-    @Qualifier("userStorage")
-    private final Storage<User> storage;
+    private final UserService service;
 
     @Autowired
-    public UserController(Storage<User> storage) {
-        this.storage = storage;
+    public UserController(UserService service) {
+        this.service = service;
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<User> get() {
         log.debug("Request users.");
-        return storage.getAll();
+        return service.getAll();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User create(@Validated(Create.class) @RequestBody User user) {
         log.debug("Request to create user [{}]", user);
-        return storage.add(user);
+        return service.create(user);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public User update(@Validated(Update.class) @RequestBody User user) {
         log.debug("Request to update user [{}]", user);
-        return storage.update(user);
+        return service.update(user);
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

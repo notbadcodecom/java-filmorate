@@ -2,19 +2,14 @@ package ru.yandex.practicum.filmorate.storage;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Set;
 
-public interface Storage<T> {
+public interface Storage<T> extends Like {
 
     Optional<T> get(int id);
 
     T add(T t);
 
-    T update(T t);
-
     ArrayList<T> getAll();
-
-    void addLike(int acceptorId, int giverId);
-
-    void removeLike(int acceptorId, int giverId);
 
 }
