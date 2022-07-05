@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -22,8 +23,8 @@ public class InMemoryLikeStorage implements Like {
     }
 
     @Override
-    public Set<Integer> loadLikes(int id) {
+    public Optional<Set<Integer>> loadLikes(int id) {
         log.debug("Load likes by id [{}]", id);
-        return likes.get(id);
+        return Optional.ofNullable(likes.get(id));
     }
 }

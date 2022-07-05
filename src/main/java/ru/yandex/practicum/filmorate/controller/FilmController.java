@@ -14,8 +14,10 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.validation.Create;
 import ru.yandex.practicum.filmorate.validation.Update;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -30,11 +32,18 @@ public class FilmController {
         this.service = service;
     }
 
-    @GetMapping
+    @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public List<Film> get() {
+    public ArrayList<Film> get() {
         log.debug("Request movies.");
         return service.getAll();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Film get(@PathVariable int id) {
+        log.debug("Request movie [{}]", id);
+        return service.get(id);
     }
 
     @PostMapping
