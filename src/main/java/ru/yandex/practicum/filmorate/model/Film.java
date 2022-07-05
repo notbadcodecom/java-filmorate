@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import ru.yandex.practicum.filmorate.validation.*;
 
 import javax.validation.constraints.*;
@@ -9,6 +10,7 @@ import java.time.*;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @IdValidation(value = "film", groups = {Update.class})
 public class Film extends Id {
     @NotBlank(message = "Name should be not blank", groups = {Create.class})
