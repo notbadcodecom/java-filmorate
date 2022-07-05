@@ -1,15 +1,25 @@
 package ru.yandex.practicum.filmorate.validation;
 
-import ru.yandex.practicum.filmorate.data.InMemoryData;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.model.Id;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-
 public class IdValidator implements ConstraintValidator<IdValidation, Id> {
 
     String className;
+
+    FilmStorage filmStorage;
+    UserStorage userStorage;
+
+    @Autowired
+    public IdValidator(FilmStorage filmStorage, UserStorage userStorage) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+    }
 
     @Override
     public void initialize(IdValidation className) {
@@ -23,9 +33,9 @@ public class IdValidator implements ConstraintValidator<IdValidation, Id> {
                 .addConstraintViolation();
         switch (className) {
             case "film":
-                return InMemoryData.getInstance().getFilm(o.getId()) != null;
+                return filmStorage.get(o.getId()).isPresent();
             case "user":
-                return InMemoryData.getInstance().getUser(o.getId()) != null;
+                return userStorage.get(o.getId()).isPresent();
             default:
                 return true;
         }
