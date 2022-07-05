@@ -10,8 +10,16 @@ import java.util.*;
 @Component("userStorage")
 public class InMemoryUserStorage implements Storage<User> {
 
-    private int userIdCounter = 0;
-    private final Map<Integer, User> users = new HashMap<>();
+    private int userIdCounter;
+    private final Map<Integer, User> users;
+    private final Map<Integer, Set<Integer>> likes;
+
+    public InMemoryUserStorage() {
+        userIdCounter = 0;
+        users = new HashMap<>();
+        likes = new HashMap<>();
+    }
+
 
     @Override
     public Optional<User> get(int id) {
@@ -45,5 +53,35 @@ public class InMemoryUserStorage implements Storage<User> {
     public ArrayList<User> getAll() {
         log.debug("Return {} users.", users.size());
         return new ArrayList<>(users.values());
+    }
+
+    @Override
+    public void addLike(int acceptorId, int giverId) {
+        if (acceptorId != giverId) {
+            Set<Integer> acceptorLikes = likes.get(acceptorId);
+            Set<Integer> giverLikes = likes.get(giverId);
+
+            acceptorLikes.add(giverId);
+            giverLikes.add(acceptorId);
+
+            likes.put(acceptorId, acceptorLikes);
+            likes.put(giverId, giverLikes);
+
+            log.debug("Add likes to users [{}, {}]", acceptorId, giverId);
+        }
+    }
+
+    @Override
+    public void removeLike(int acceptorId, int giverId) {
+        Set<Integer> acceptorLikes = likes.get(acceptorId);
+        Set<Integer> giverLikes = likes.get(giverId);
+
+        acceptorLikes.remove(giverId);
+        giverLikes.remove(acceptorId);
+
+        likes.put(acceptorId, acceptorLikes);
+        likes.put(giverId, giverLikes);
+
+        log.debug("Remove likes from users [{}, {}]", acceptorId, giverId);
     }
 }

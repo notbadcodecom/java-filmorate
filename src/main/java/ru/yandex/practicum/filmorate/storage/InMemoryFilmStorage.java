@@ -4,17 +4,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Component("filmStorage")
 public class InMemoryFilmStorage implements Storage<Film> {
 
-    private int filmIdCounter = 0;
-    private final Map<Integer, Film> films = new HashMap<>();
+    private int filmIdCounter;
+    private final Map<Integer, Film> films;
+    private final Map<Integer, Set<Integer>> likes;
+
+    public InMemoryFilmStorage() {
+        filmIdCounter = 0;
+        films = new HashMap<>();
+        likes = new HashMap<>();
+    }
+
 
     @Override
     public Optional<Film> get(int id) {
@@ -46,5 +51,21 @@ public class InMemoryFilmStorage implements Storage<Film> {
     public ArrayList<Film> getAll() {
         log.debug("Return {} movies.", films.size());
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public void addLike(int acceptorId, int giverId) {
+        Set<Integer> filmLikes = likes.get(acceptorId);
+        filmLikes.add(giverId);
+        likes.put(acceptorId, filmLikes);
+        log.debug("User [{}] Add like to film [{}]", giverId, acceptorId);
+    }
+
+    @Override
+    public void removeLike(int acceptorId, int giverId) {
+        Set<Integer> filmLikes = likes.get(acceptorId);
+        filmLikes.remove(giverId);
+        likes.put(acceptorId, filmLikes);
+        log.debug("User [{}] remove like from film [{}]", giverId, acceptorId);
     }
 }

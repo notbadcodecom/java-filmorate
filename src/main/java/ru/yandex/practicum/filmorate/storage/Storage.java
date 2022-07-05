@@ -13,4 +13,8 @@ public interface Storage<T> {
 
     ArrayList<T> getAll();
 
+    void addLike(int acceptorId, int giverId);
+
+    void removeLike(int acceptorId, int giverId);
+
 }
