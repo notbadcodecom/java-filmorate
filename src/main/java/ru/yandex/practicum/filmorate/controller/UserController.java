@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FriendsService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validation.Create;
 import ru.yandex.practicum.filmorate.validation.Update;
@@ -21,32 +22,69 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService service;
+    private final UserService userService;
+    private final FriendsService friendsService;
 
     @Autowired
-    public UserController(UserService service) {
-        this.service = service;
+    public UserController(UserService userService, FriendsService friendsService) {
+        this.userService = userService;
+        this.friendsService = friendsService;
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<User> get() {
         log.debug("Request users.");
-        return service.getAll();
+        return userService.getAll();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public User get(@PathVariable int id) {
+        log.debug("Request user [{}]", id);
+        return userService.get(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User create(@Validated(Create.class) @RequestBody User user) {
         log.debug("Request to create user [{}]", user);
-        return service.create(user);
+        return userService.create(user);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public User update(@Validated(Update.class) @RequestBody User user) {
         log.debug("Request to update user [{}]", user);
-        return service.update(user);
+        return userService.update(user);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createFriendship(@PathVariable int id, @PathVariable int friendId) {
+        log.debug("Request to add like for user [{}], from friend [{}],", id, friendId);
+        friendsService.addLike(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteFriendship(@PathVariable int id, @PathVariable int friendId) {
+        log.debug("Request to add like for user [{}], from friend [{}],", id, friendId);
+        friendsService.deleteLike(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> getFriends(@PathVariable int id) {
+        log.debug("Request friends of user [{}]", id);
+        return friendsService.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+        log.debug("Request common friends of user [{}]", id);
+        return friendsService.getCommonFriends(id, otherId);
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

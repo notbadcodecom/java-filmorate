@@ -4,10 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.Storage;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -31,7 +34,7 @@ public class UserService {
     }
 
     public User update(User user) {
-        User updatedUser = storage.get(user.getId()).get();
+        User updatedUser = getUserIfPresent(user.getId());
         if (user.getBirthday() == null) user.setBirthday(updatedUser.getBirthday());
         if (user.getLogin() == null) user.setLogin(updatedUser.getLogin());
         if (user.getEmail() == null) user.setEmail(updatedUser.getEmail());
@@ -44,31 +47,19 @@ public class UserService {
         return storage.getAll();
     }
 
-    public void addLikes(int acceptorId, int giverId) {
-        if (acceptorId != giverId) {
-            Set<Integer> acceptorLikes = storage.loadLikes(acceptorId);
-            Set<Integer> giverLikes = storage.loadLikes(giverId);
-
-            acceptorLikes.add(giverId);
-            giverLikes.add(acceptorId);
-
-            storage.saveLikes(acceptorId, acceptorLikes);
-            storage.saveLikes(giverId, giverLikes);
-
-            log.debug("Add likes to users [{}, {}]", acceptorId, giverId);
-        }
+    public User get(int id) {
+        log.debug("Return user [{}]", id);
+        return getUserIfPresent(id);
     }
 
-    public void deleteLikes(int acceptorId, int giverId) {
-        Set<Integer> acceptorLikes = storage.loadLikes(acceptorId);
-        Set<Integer> giverLikes = storage.loadLikes(giverId);
-
-        acceptorLikes.remove(giverId);
-        giverLikes.remove(acceptorId);
-
-        storage.saveLikes(acceptorId, acceptorLikes);
-        storage.saveLikes(giverId, giverLikes);
-
-        log.debug("Remove likes from users [{}, {}]", acceptorId, giverId);
+    private User getUserIfPresent(int id) {
+        Optional<User> user = storage.get(id);
+        if (user.isPresent()) {
+            log.debug("Return user [{}]", user);
+            return user.get();
+        } else {
+            log.debug("User {} not found.", id);
+            throw new NotFoundException("User " + id);
+        }
     }
 }
