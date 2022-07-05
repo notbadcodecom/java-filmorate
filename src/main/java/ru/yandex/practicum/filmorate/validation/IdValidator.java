@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.validation;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Id;
 import ru.yandex.practicum.filmorate.model.User;
@@ -11,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.Storage;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-@Slf4j
 public class IdValidator implements ConstraintValidator<IdValidation, Id> {
 
     String className;
@@ -36,8 +33,6 @@ public class IdValidator implements ConstraintValidator<IdValidation, Id> {
         cxt.buildConstraintViolationWithTemplate(cxt.getDefaultConstraintMessageTemplate())
                 .addPropertyNode("id")
                 .addConstraintViolation();
-        log.debug(o.toString());
-        log.debug(className);
         switch (className) {
             case "film":
                 return filmStorage.get(o.getId()).isPresent();
