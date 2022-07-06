@@ -56,8 +56,8 @@ public class UserService {
             log.debug("Return user [{}]", user);
             return user.get();
         } else {
-            log.debug("User {} not found.", id);
-            throw new NotFoundException("User " + id);
+            log.debug("User {} not found", id);
+            throw new NotFoundException("User not found.");
         }
     }
 }

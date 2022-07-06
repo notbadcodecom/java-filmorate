@@ -60,16 +60,16 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public void createFriendship(@PathVariable int id, @PathVariable int friendId) {
-        log.debug("Request to add like for user [{}], from friend [{}],", id, friendId);
+        log.debug("Request to add like for user [{}] from friend [{}]", id, friendId);
         friendsService.addLike(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFriendship(@PathVariable int id, @PathVariable int friendId) {
-        log.debug("Request to add like for user [{}] from friend [{}],", id, friendId);
+        log.debug("Request to add like for user [{}] from friend [{}]", id, friendId);
         friendsService.deleteLike(id, friendId);
     }
 
@@ -85,16 +85,5 @@ public class UserController {
     public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
         log.debug("Request common friends of user [{}]", id);
         return friendsService.getCommonFriends(id, otherId);
-    }
-
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        return ex.getBindingResult().getFieldErrors().stream()
-                .peek(e -> log.debug("Validation error [{}]", e.getDefaultMessage()))
-                .collect(Collectors.toMap(
-                        FieldError::getField,
-                        DefaultMessageSourceResolvable::getDefaultMessage
-                ));
     }
 }

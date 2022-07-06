@@ -54,7 +54,7 @@ public class FilmService {
             return film.get();
         } else {
             log.debug("Movie {} not found.", id);
-            throw new NotFoundException("Movie " + id);
+            throw new NotFoundException("Movie not found.");
         }
     }
 }
