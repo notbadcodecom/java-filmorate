@@ -13,12 +13,12 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class FriendsService {
+public class FriendService {
     @Qualifier("filmStorage")
     private final Storage<User> storage;
 
     @Autowired
-    public FriendsService(Storage<User> storage) {
+    public FriendService(Storage<User> storage) {
         this.storage = storage;
     }
 

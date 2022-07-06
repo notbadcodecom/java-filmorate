@@ -2,20 +2,16 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FriendsService;
+import ru.yandex.practicum.filmorate.service.FriendService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validation.Create;
 import ru.yandex.practicum.filmorate.validation.Update;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -23,12 +19,12 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
-    private final FriendsService friendsService;
+    private final FriendService friendService;
 
     @Autowired
-    public UserController(UserService userService, FriendsService friendsService) {
+    public UserController(UserService userService, FriendService friendService) {
         this.userService = userService;
-        this.friendsService = friendsService;
+        this.friendService = friendService;
     }
 
     @GetMapping
@@ -63,27 +59,27 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public void createFriendship(@PathVariable int id, @PathVariable int friendId) {
         log.debug("Request to add like for user [{}] from friend [{}]", id, friendId);
-        friendsService.addLike(id, friendId);
+        friendService.addLike(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFriendship(@PathVariable int id, @PathVariable int friendId) {
         log.debug("Request to add like for user [{}] from friend [{}]", id, friendId);
-        friendsService.deleteLike(id, friendId);
+        friendService.deleteLike(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     @ResponseStatus(HttpStatus.OK)
     public List<User> getFriends(@PathVariable int id) {
         log.debug("Request friends of user [{}]", id);
-        return friendsService.getFriends(id);
+        return friendService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     @ResponseStatus(HttpStatus.OK)
     public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
         log.debug("Request common friends of user [{}]", id);
-        return friendsService.getCommonFriends(id, otherId);
+        return friendService.getCommonFriends(id, otherId);
     }
 }
