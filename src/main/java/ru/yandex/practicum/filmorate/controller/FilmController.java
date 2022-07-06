@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.validation.Update;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -58,13 +59,13 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public void createScore(@PathVariable int id, @PathVariable int userId) {
         log.debug("Request to add like for movie [{}], from user [{}],", id, userId);
         scoreService.addLike(id, userId);
     }
 
-    @DeleteMapping("/{id}/like/{friendId}")
+    @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteScore(@PathVariable int id, @PathVariable int userId) {
         log.debug("Request to add like for movie [{}] from friend [{}],", id, userId);
@@ -73,7 +74,7 @@ public class FilmController {
 
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
-    public List<Film> getPopular(@RequestParam int count) {
+    public List<Film> getPopular(@RequestParam Optional<Integer> count) {
         log.debug("Request [{}] popular movie", count);
         return scoreService.getPopular(count);
     }
