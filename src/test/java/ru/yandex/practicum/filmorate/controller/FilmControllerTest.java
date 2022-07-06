@@ -46,7 +46,7 @@ class FilmControllerTest {
                         .content("{\"description\": \"King Arthur search for the Holy Grail\", " +
                                 "\"releaseDate\": \"1975-03-14\"," +
                                 "\"duration\": 91}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.name").value("Name should be not blank"));
     }
 
@@ -59,7 +59,7 @@ class FilmControllerTest {
                                 "\"description\": \"King Arthur search for the Holy Grail\", " +
                                 "\"releaseDate\": \"1975-03-14\"," +
                                 "\"duration\": 91}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.name").value("Name should be not blank"));
     }
 
@@ -71,7 +71,7 @@ class FilmControllerTest {
                         .content("{\"name\": \"Monty Python and the Holy Grail\", " +
                                 "\"releaseDate\": \"1975-03-14\"," +
                                 "\"duration\": 91}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.description").value("Description is required"));
     }
 
@@ -88,7 +88,7 @@ class FilmControllerTest {
                                 "laboris nisi ut al\", " +
                                 "\"releaseDate\": \"1975-03-14\"," +
                                 "\"duration\": 91}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.description")
                         .value("Description should be less 200 characters"));
     }
@@ -117,7 +117,7 @@ class FilmControllerTest {
                         .content("{\"name\": \"Monty Python and the Holy Grail\", " +
                                 "\"description\": \"King Arthur search for the Holy Grail\", " +
                                 "\"duration\": 91}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.releaseDate").value("Release is required"));
     }
 
@@ -130,7 +130,7 @@ class FilmControllerTest {
                                 "\"description\": \"King Arthur search for the Holy Grail\", " +
                                 "\"releaseDate\": \"1895-12-27\"," +
                                 "\"duration\": 91}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.releaseDate").value("Movie should be released after 1895-12-28"));
     }
 
@@ -154,7 +154,7 @@ class FilmControllerTest {
                         .content("{\"name\": \"Monty Python and the Holy Grail\", " +
                                 "\"description\": \"King Arthur search for the Holy Grail\", " +
                                 "\"releaseDate\": \"1975-03-14\"}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.duration").value("Duration is required"));
     }
 
@@ -167,7 +167,7 @@ class FilmControllerTest {
                                 "\"description\": \"King Arthur search for the Holy Grail\", " +
                                 "\"releaseDate\": \"1975-03-14\", " +
                                 "\"duration\": -1}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.duration").value("Duration should be positive"));
     }
 
@@ -198,7 +198,7 @@ class FilmControllerTest {
                                 "\"description\": \"Updated description\", " +
                                 "\"releaseDate\": \"2000-03-14\"," +
                                 " \"duration\": 191}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.id").value("Invalid ID or no film with this ID"));
     }
 
@@ -212,7 +212,7 @@ class FilmControllerTest {
                                 "\"description\": \"Updated description\", " +
                                 "\"releaseDate\": \"2000-03-14\"," +
                                 " \"duration\": 191}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.id").value("Invalid ID or no film with this ID"));
     }
 }

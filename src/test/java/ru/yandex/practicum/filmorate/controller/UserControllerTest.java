@@ -58,7 +58,7 @@ class UserControllerTest {
                         .content("{\"login\": \"user-login\", " +
                                 "\"name\": \"User Name\"," +
                                 "\"birthday\": \"1988-04-01\"}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.email").value("Email is required"));
     }
 
@@ -71,7 +71,7 @@ class UserControllerTest {
                                 "\"login\": \"user-login\", " +
                                 "\"name\": \"User Name\"," +
                                 "\"birthday\": \"1988-04-01\"}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.email").value("Invalid email"));
     }
 
@@ -82,7 +82,7 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"User Name\"," +
                                 "\"birthday\": \"1988-04-01\"}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.login").value("Login is required"));
     }
 
@@ -95,7 +95,7 @@ class UserControllerTest {
                                 "\"login\": \"user.login_login_login-login-login-login-login-login\", " +
                                 "\"name\": \"User Name\"," +
                                 "\"birthday\": \"1988-04-01\"}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.login").value("Login consists of letters, numbers, dash and 3-20 characters"));
     }
 
@@ -108,7 +108,7 @@ class UserControllerTest {
                                 "\"login\": \"user-login\", " +
                                 "\"name\": \"User Name\"," +
                                 "\"birthday\": \"2088-04-01\"}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.birthday").value("Birthday can't be in the future"));
     }
 
@@ -139,7 +139,7 @@ class UserControllerTest {
                                 "\"login\": \"user-login\", " +
                                 "\"name\": \"User Name\"," +
                                 "\"birthday\": \"2088-04-01\"}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.id").value("Invalid ID or no user with this ID"));
     }
 
@@ -153,7 +153,7 @@ class UserControllerTest {
                                 "\"login\": \"user-login\", " +
                                 "\"name\": \"User Name\"," +
                                 "\"birthday\": \"2088-04-01\"}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.id").value("Invalid ID or no user with this ID"));
     }
 
@@ -173,7 +173,7 @@ class UserControllerTest {
                                 "\"login\": \"user-login\", " +
                                 "\"name\": \"User Name\"," +
                                 " \"birthday\": \"2088-04-01\"}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.email").value("Email already in use"));
     }
 }
