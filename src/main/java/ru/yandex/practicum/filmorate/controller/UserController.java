@@ -69,7 +69,7 @@ public class UserController {
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFriendship(@PathVariable int id, @PathVariable int friendId) {
-        log.debug("Request to add like for user [{}], from friend [{}],", id, friendId);
+        log.debug("Request to add like for user [{}] from friend [{}],", id, friendId);
         friendsService.deleteLike(id, friendId);
     }
 
