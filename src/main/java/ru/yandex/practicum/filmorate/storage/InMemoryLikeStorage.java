@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
 @Slf4j
-public class InMemoryLikeStorage implements Like {
+public class InMemoryLikeStorage implements LikeStorage {
 
     private final Map<Integer, Set<Integer>> likes;
 
