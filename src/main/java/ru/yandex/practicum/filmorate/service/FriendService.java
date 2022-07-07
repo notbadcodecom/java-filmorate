@@ -60,15 +60,15 @@ public class FriendService {
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
-        Set<Integer> friends = getLikesIds(id);
-        friends.retainAll(getLikesIds(otherId));
-        log.debug("Return {} common friends", friends.size());
-        log.debug("List of common friends: {}", friends);
-        return friends.stream()
+        List<User> commonFriends = getLikesIds(id).stream()
+                .filter(getLikesIds(otherId)::contains)
                 .map(storage::get)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
+        log.debug("Return {} common friends", commonFriends.size());
+        log.debug("List of common friends: {}", commonFriends);
+        return commonFriends;
     }
 
     private Set<Integer> getLikesIds(int id) {
