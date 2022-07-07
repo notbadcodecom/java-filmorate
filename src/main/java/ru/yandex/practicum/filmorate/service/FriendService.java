@@ -22,32 +22,30 @@ public class FriendService {
         this.storage = storage;
     }
 
-    public void addLike(int id, int friendId) {
+    public void addLikes(int id, int friendId) {
         if (hasNotUserId(id) || hasNotUserId(friendId)) throw new NotFoundException("User not found.");
+        this.addLike(id, friendId);
+        this.addLike(friendId, id);
+    }
 
+    private void addLike(int id, int friendId) {
         Set<Integer> likes = getLikesIds(id);
         likes.add(friendId);
         storage.saveLikes(id, likes);
-        log.debug("Create like from user [{}] to user [{}] ",  id, friendId);
+        log.debug("Create like from user [{}] to user [{}] ", id, friendId);
+    }
 
-        likes = getLikesIds(friendId);
-        likes.add(id);
-        storage.saveLikes(friendId, likes);
-        log.debug("Create like from user [{}] to user [{}] ",  friendId, id);
+    public void deleteLikes(int id, int friendId) {
+        if (hasNotUserId(id) || hasNotUserId(friendId)) throw new NotFoundException("User not found.");
+        deleteLike(id, friendId);
+        deleteLike(id, friendId);
     }
 
     public void deleteLike(int id, int friendId) {
-        if (hasNotUserId(id) || hasNotUserId(friendId)) throw new NotFoundException("User not found.");
-
         Set<Integer> likes = getLikesIds(id);
         likes.remove(friendId);
         storage.saveLikes(id, likes);
         log.debug("Delete like from user [{}] to user [{}] ",  id, friendId);
-
-        likes = getLikesIds(friendId);
-        likes.remove(id);
-        storage.saveLikes(friendId, likes);
-        log.debug("Delete like from user [{}] to user [{}] ",  friendId, id);
     }
 
     public List<User> getFriends(int id) {
@@ -61,7 +59,6 @@ public class FriendService {
     public List<User> getCommonFriends(int id, int otherId) {
         Set<Integer> common = getLikesIds(id);
         common.retainAll(getLikesIds(otherId));
-        log.debug(String.valueOf(common));
         return common.stream()
                 .map(storage::get)
                 .filter(Optional::isPresent)

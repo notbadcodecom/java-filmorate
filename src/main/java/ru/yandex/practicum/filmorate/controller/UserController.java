@@ -59,14 +59,14 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public void createFriendship(@PathVariable int id, @PathVariable int friendId) {
         log.debug("Request to add like for user [{}] from friend [{}]", id, friendId);
-        friendService.addLike(id, friendId);
+        friendService.addLikes(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFriendship(@PathVariable int id, @PathVariable int friendId) {
         log.debug("Request to add like for user [{}] from friend [{}]", id, friendId);
-        friendService.deleteLike(id, friendId);
+        friendService.deleteLikes(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
