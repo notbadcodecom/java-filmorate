@@ -20,21 +20,22 @@ public class InMemoryUserStorage extends InMemoryLikeStorage implements Storage<
 
     @Override
     public Optional<User> get(int id) {
-        log.debug("Getting user [{}]", users.get(id));
+        log.debug("Getting from memory user {}", users.get(id));
         return Optional.ofNullable(users.get(id));
     }
 
     @Override
     public User add(User user) {
         if (user.getId() == 0) user.setId(++userIdCounter);
+        log.debug("Generate ID for user {}", user);
         users.put(user.getId(), user);
-        log.debug("Save user [{}]", user);
+        log.debug("Save to memory user [{}]", user);
         return user;
     }
 
     @Override
     public ArrayList<User> getAll() {
-        log.debug("Getting {} users.", users.size());
+        log.debug("Getting all ({}) users", users.size());
         return new ArrayList<>(users.values());
     }
 }

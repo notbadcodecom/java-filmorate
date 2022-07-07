@@ -27,37 +27,36 @@ public class UserService {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        log.debug("Create user [{}]", user);
-        return storage.add(user);
+        User newUser = storage.add(user);
+        log.debug("Create user {}", newUser);
+        return newUser;
     }
 
     public User update(User user) {
-        User updatedUser = getUserIfPresent(user.getId());
+        log.debug("User before update {}", user);
+        User updatedUser = get(user.getId());
         if (user.getBirthday() == null) user.setBirthday(updatedUser.getBirthday());
         if (user.getLogin() == null) user.setLogin(updatedUser.getLogin());
         if (user.getEmail() == null) user.setEmail(updatedUser.getEmail());
-        log.debug("Update user [{}]", user);
+        log.debug("User after update {}", user);
         return storage.add(user);
     }
 
     public ArrayList<User> getAll() {
-        log.debug("Return {} users.", storage.getAll().size());
-        return storage.getAll();
+        ArrayList<User> users = storage.getAll();
+        log.debug("Return {} users", users.size());
+        log.debug("List of users {}", users);
+        return users;
     }
 
     public User get(int id) {
-        log.debug("Return user [{}]", id);
-        return getUserIfPresent(id);
-    }
-
-    private User getUserIfPresent(int id) {
         Optional<User> user = storage.get(id);
         if (user.isPresent()) {
-            log.debug("Return user [{}]", user);
+            log.debug("Load from storage user {}", user);
             return user.get();
         } else {
-            log.debug("User {} not found", id);
-            throw new NotFoundException("User not found.");
+            log.debug("User #{} not found", id);
+            throw new NotFoundException("User not found");
         }
     }
 }

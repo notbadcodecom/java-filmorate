@@ -20,21 +20,22 @@ public class InMemoryFilmStorage extends InMemoryLikeStorage implements Storage<
 
     @Override
     public Optional<Film> get(int id) {
-        log.debug("Getting movie [{}]", films.get(id));
+        log.debug("Getting from memory movie {}", films.get(id));
         return Optional.ofNullable(films.get(id));
     }
 
     @Override
     public Film add(Film film) {
         if (film.getId() == 0) film.setId(++filmIdCounter);
+        log.debug("Generate ID for movie {}", film);
         films.put(film.getId(), film);
-        log.debug("Save movie [{}]", film);
+        log.debug("Save to memory movie {}", film);
         return film;
     }
 
     @Override
     public ArrayList<Film> getAll() {
-        log.debug("Getting {} movies.", films.size());
+        log.debug("Getting all ({}) movies.", films.size());
         return new ArrayList<>(films.values());
     }
 }

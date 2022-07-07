@@ -30,56 +30,56 @@ public class UserController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<User> get() {
-        log.debug("Request users.");
+        log.debug("GET all users");
         return userService.getAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public User get(@PathVariable int id) {
-        log.debug("Request user [{}]", id);
+        log.debug("GET users by id");
         return userService.get(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User create(@Validated(Create.class) @RequestBody User user) {
-        log.debug("Request to create user [{}]", user);
+        log.debug("POST new user");
         return userService.create(user);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public User update(@Validated(Update.class) @RequestBody User user) {
-        log.debug("Request to update user [{}]", user);
+        log.debug("PUT user");
         return userService.update(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
     public void createFriendship(@PathVariable int id, @PathVariable int friendId) {
-        log.debug("Request to add like for user [{}] from friend [{}]", id, friendId);
+        log.debug("PUT friendship");
         friendService.addLikes(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFriendship(@PathVariable int id, @PathVariable int friendId) {
-        log.debug("Request to add like for user [{}] from friend [{}]", id, friendId);
+        log.debug("DELETE friendship");
         friendService.deleteLikes(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     @ResponseStatus(HttpStatus.OK)
     public List<User> getFriends(@PathVariable int id) {
-        log.debug("Request friends of user [{}]", id);
+        log.debug("GET friends");
         return friendService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     @ResponseStatus(HttpStatus.OK)
     public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
-        log.debug("Request common friends of user [{}]", id);
+        log.debug("GET common friends");
         return friendService.getCommonFriends(id, otherId);
     }
 }

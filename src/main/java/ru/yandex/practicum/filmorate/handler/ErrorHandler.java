@@ -20,22 +20,20 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
     public Map<String, String> handleNoSuchElementFoundException(NotFoundException ex) {
+        log.debug("Validation error: {}", ex.getMessage());
         return Map.of("id", ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
-                .peek(e -> log.debug("Validation error [{}]", e.getDefaultMessage()))
+                .peek(e -> log.debug("Validation error: {}", e.getDefaultMessage()))
                 .collect(Collectors.toMap(
                         FieldError::getField,
                         e -> (e.getDefaultMessage() == null) ? "validation error" : e.getDefaultMessage()
                 ));
-
-        if (errors.containsKey("id")) {
-            return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
+        return (errors.containsKey("id"))
+                ? new ResponseEntity<>(errors, HttpStatus.NOT_FOUND)
+                : new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 }

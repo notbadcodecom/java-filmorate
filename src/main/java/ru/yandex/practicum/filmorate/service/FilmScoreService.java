@@ -33,27 +33,29 @@ public class FilmScoreService {
     }
 
     public void addLike(int id, int userId) {
-        if (hasNotFilmId(id)) throw new NotFoundException("Movie not found.");
-        if (hasNotUserId(userId)) throw new NotFoundException("User not found.");
-
+        if (hasNotFilmId(id)) throw new NotFoundException("Movie not found");
+        if (hasNotUserId(userId)) throw new NotFoundException("User not found");
+        log.debug("Creating score for movie #{} from user #{}",  id, userId);
         Set<Integer> likes = getLikesIds(id);
+        log.debug("Score before adding is {}", likes.size());
         likes.add(userId);
+        log.debug("Score after adding is {}", likes.size());
         filmStorage.saveLikes(id, likes);
-        log.debug("Create like to movie [{}] from user [{}]",  id, userId);
     }
 
     public void deleteLike(int id, int userId) {
-        if (hasNotFilmId(id)) throw new NotFoundException("Movie not found.");
-        if (hasNotUserId(userId)) throw new NotFoundException("User not found.");
-
+        if (hasNotFilmId(id)) throw new NotFoundException("Movie not found");
+        if (hasNotUserId(userId)) throw new NotFoundException("User not found");
+        log.debug("Delete score of movie #{} from user #{}",  id, userId);
         Set<Integer> likes = getLikesIds(id);
+        log.debug("Score before deleting is {}", likes.size());
         likes.remove(userId);
+        log.debug("Score after deleting is {}", likes.size());
         filmStorage.saveLikes(id, likes);
-        log.debug("Delete like of movie [{}] from user [{}]",  id, userId);
     }
 
     public List<Film> getPopular(Optional<Integer> count) {
-        return filmStorage.getAll().stream()
+        List<Film> popular = filmStorage.getAll().stream()
                 .sorted((f1, f2) -> {
                     if (filmStorage.loadLikes(f1.getId()).isEmpty() && filmStorage.loadLikes(f1.getId()).isEmpty()) {
                         return 0;
@@ -62,10 +64,14 @@ public class FilmScoreService {
                     } else if (filmStorage.loadLikes(f1.getId()).isEmpty()) {
                         return 1;
                     } else {
-                        return filmStorage.loadLikes(f2.getId()).get().size() - filmStorage.loadLikes(f1.getId()).get().size();
+                        return filmStorage.loadLikes(f2.getId()).get().size()
+                                - filmStorage.loadLikes(f1.getId()).get().size();
                     }
                 }).limit(count.orElse(MIN_COUNT_OF_POPULAR_FILMS))
                 .collect(Collectors.toList());
+        log.debug("Return {} popular films", popular.size());
+        log.debug("List of popular films: {}", popular);
+        return popular;
     }
 
     private Set<Integer> getLikesIds(int id) {

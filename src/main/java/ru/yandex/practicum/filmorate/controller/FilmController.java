@@ -33,14 +33,12 @@ public class FilmController {
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public ArrayList<Film> get() {
-        log.debug("Request movies.");
         return filmService.getAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Film get(@PathVariable int id) {
-        log.debug("Request movie [{}]", id);
         return filmService.get(id);
     }
 
@@ -54,28 +52,24 @@ public class FilmController {
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public Film update(@Validated(Update.class) @RequestBody Film film) {
-        log.debug("Request to update movie [{}]", film);
         return filmService.update(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public void createScore(@PathVariable int id, @PathVariable int userId) {
-        log.debug("Request to add like for movie [{}], from user [{}],", id, userId);
         scoreService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteScore(@PathVariable int id, @PathVariable int userId) {
-        log.debug("Request to add like for movie [{}] from friend [{}],", id, userId);
         scoreService.deleteLike(id, userId);
     }
 
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
     public List<Film> getPopular(@RequestParam Optional<Integer> count) {
-        log.debug("Request [{}] popular movie", count);
         return scoreService.getPopular(count);
     }
 }
