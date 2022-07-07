@@ -38,7 +38,7 @@ public class FriendService {
     public void deleteLikes(int id, int friendId) {
         if (hasNotUserId(id) || hasNotUserId(friendId)) throw new NotFoundException("User not found.");
         deleteLike(id, friendId);
-        deleteLike(id, friendId);
+        deleteLike(friendId, id);
     }
 
     private void deleteLike(int id, int friendId) {
