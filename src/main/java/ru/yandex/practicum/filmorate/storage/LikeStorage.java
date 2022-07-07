@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import java.util.Optional;
 import java.util.Set;
 
-public interface Like {
+public interface LikeStorage {
 
     void saveLikes(int id, Set<Integer> idLikes);
 
