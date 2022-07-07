@@ -37,7 +37,7 @@ public class UserController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public User get(@PathVariable int id) {
-        log.debug("GET users by id");
+        log.debug("GET user by id");
         return userService.get(id);
     }
 

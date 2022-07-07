@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.storage.Storage;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,8 +22,6 @@ public class FilmScoreService {
 
     @Qualifier("filmStorage")
     private final Storage<User> userStorage;
-
-    private final int MIN_COUNT_OF_POPULAR_FILMS = 10;
 
     @Autowired
     public FilmScoreService(Storage<Film> filmStorage, Storage<User> userStorage) {
@@ -54,7 +51,7 @@ public class FilmScoreService {
         filmStorage.saveLikes(id, likes);
     }
 
-    public List<Film> getPopular(Optional<Integer> count) {
+    public List<Film> getPopular(int count) {
         List<Film> popular = filmStorage.getAll().stream()
                 .sorted((f1, f2) -> {
                     if (filmStorage.loadLikes(f1.getId()).isEmpty() && filmStorage.loadLikes(f1.getId()).isEmpty()) {
@@ -67,7 +64,8 @@ public class FilmScoreService {
                         return filmStorage.loadLikes(f2.getId()).get().size()
                                 - filmStorage.loadLikes(f1.getId()).get().size();
                     }
-                }).limit(count.orElse(MIN_COUNT_OF_POPULAR_FILMS))
+                })
+                .limit(count)
                 .collect(Collectors.toList());
         log.debug("Return {} popular films", popular.size());
         log.debug("List of popular films: {}", popular);
