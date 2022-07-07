@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -20,8 +21,15 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
     public Map<String, String> handleNoSuchElementFoundException(NotFoundException ex) {
-        log.debug("Validation error: {}", ex.getMessage());
-        return Map.of("id", ex.getMessage());
+        log.debug("Not found error: {}", ex.getMessage());
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public Map<String, String> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+        log.debug("Method not support: {}", ex.getMessage());
+        return Map.of("error", ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -35,5 +43,12 @@ public class ErrorHandler {
         return (errors.containsKey("id"))
                 ? new ResponseEntity<>(errors, HttpStatus.NOT_FOUND)
                 : new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(RuntimeException.class)
+    public Map<String, String> handleServerErrorException(NotFoundException ex) {
+        log.debug("Server error: {}", ex.getMessage());
+        return Map.of("error", ex.getMessage());
     }
 }
