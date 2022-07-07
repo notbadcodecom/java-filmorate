@@ -33,7 +33,8 @@ public class FilmScoreService {
     }
 
     public void addLike(int id, int userId) {
-        if (hasNotFilmId(id) || hasNotUserId(userId)) throw new NotFoundException("Movie not found.");
+        if (hasNotFilmId(id)) throw new NotFoundException("Movie not found.");
+        if (hasNotUserId(userId)) throw new NotFoundException("User not found.");
 
         Set<Integer> likes = getLikesIds(id);
         likes.add(userId);
@@ -42,7 +43,8 @@ public class FilmScoreService {
     }
 
     public void deleteLike(int id, int userId) {
-        if (hasNotFilmId(id) || hasNotUserId(userId)) throw new NotFoundException("Movie not found.");
+        if (hasNotFilmId(id)) throw new NotFoundException("Movie not found.");
+        if (hasNotUserId(userId)) throw new NotFoundException("User not found.");
 
         Set<Integer> likes = getLikesIds(id);
         likes.remove(userId);
