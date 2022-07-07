@@ -2,9 +2,8 @@ package ru.yandex.practicum.filmorate.storage;
 
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.Set;
 
-public interface Storage<T> extends Like {
+public interface Storage<T> extends LikeStorage {
 
     Optional<T> get(int id);
 

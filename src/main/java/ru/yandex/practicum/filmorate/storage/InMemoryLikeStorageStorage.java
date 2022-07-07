@@ -5,11 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
 @Slf4j
-public class InMemoryLikeStorage implements Like {
+public class InMemoryLikeStorageStorage implements LikeStorage {
 
     private final Map<Integer, Set<Integer>> likes;
 
-    protected InMemoryLikeStorage() {
+    protected InMemoryLikeStorageStorage() {
         likes = new HashMap<>();
     }
 
