@@ -41,7 +41,7 @@ public class FriendService {
         deleteLike(id, friendId);
     }
 
-    public void deleteLike(int id, int friendId) {
+    private void deleteLike(int id, int friendId) {
         Set<Integer> likes = getLikesIds(id);
         likes.remove(friendId);
         storage.saveLikes(id, likes);
