@@ -7,9 +7,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashSet;
+
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -17,8 +24,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class UserControllerTest {
 
+    private final MockMvc mockMvc;
+    private final InMemoryUserStorage userStorage;
+
     @Autowired
-    private MockMvc mockMvc;
+    public UserControllerTest(
+            MockMvc mockMvc, InMemoryUserStorage userStorage
+    ) {
+        this.mockMvc = mockMvc;
+        this.userStorage = userStorage;
+    }
 
     @Test
     @DisplayName("POST create user at /users")
@@ -115,15 +130,24 @@ class UserControllerTest {
     @Test
     @DisplayName("PUT update user at /users")
     public void shouldUpdateAndReturnUser() throws Exception {
+
+        User user = userStorage.add(
+                User.builder()
+                        .email("mail31@test.com")
+                        .birthday(LocalDate.of(1999,9,9))
+                        .login("user")
+                        .build()
+        );
+
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"id\": 1, " +
+                        .content("{\"id\": " + user.getId() + ", " +
                                 "\"email\": \"updated@email.com\", " +
                                 "\"login\": \"Updated-login\", " +
                                 "\"name\": \"Updated Name\"," +
                                 "\"birthday\": \"1988-06-15\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.id").value(user.getId()))
                 .andExpect(jsonPath("$.email").value("updated@email.com"))
                 .andExpect(jsonPath("$.login").value("Updated-login"))
                 .andExpect(jsonPath("$.name").value("Updated Name"))
@@ -176,4 +200,92 @@ class UserControllerTest {
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.email").value("Email already in use"));
     }
+
+    @Test
+    @DisplayName("PUT and DELETE user like at /{id}/friends/{friendId}")
+    public void shouldAddDeleteLikesOfBothUsers() throws Exception {
+
+        User user = userStorage.add(User.builder().email("test1@ya.ru").build());
+        User friend = userStorage.add(User.builder().email("test2@ya.ru").build());
+
+        mockMvc.perform(put("/users/" + user.getId() + "/friends/" + friend.getId()))
+                .andExpect(status().isOk());
+
+        assertTrue(
+                userStorage.loadLikes(user.getId()).orElseGet(HashSet::new).contains(friend.getId()),
+                "Friend was not added to user"
+        );
+
+        assertTrue(
+                userStorage.loadLikes(friend.getId()).orElseGet(HashSet::new).contains(user.getId()),
+                "User was not added to friend"
+        );
+
+        mockMvc.perform(delete("/users/" + user.getId() + "/friends/" + friend.getId()))
+                .andExpect(status().isNoContent());
+
+        assertFalse(
+                userStorage.loadLikes(user.getId()).orElseGet(HashSet::new).contains(friend.getId()),
+                "Friend was not deleted from user"
+        );
+
+        assertFalse(
+                userStorage.loadLikes(friend.getId()).orElseGet(HashSet::new).contains(user.getId()),
+                "User was not deleted from friend"
+        );
+    }
+
+    @Test
+    @DisplayName("GET all friends of user at /users/{id}/friends")
+    public void shouldReturnAllUserFriends() throws Exception {
+
+        User user = userStorage.add(User.builder().build());
+
+        userStorage.saveLikes(
+                user.getId(), new HashSet<>(Arrays.asList(
+                        userStorage.add(User.builder().build()).getId(),
+                        userStorage.add(User.builder().build()).getId(),
+                        userStorage.add(User.builder().build()).getId()
+                ))
+        );
+
+        mockMvc.perform(get("/users/" + user.getId() + "/friends"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", hasSize(3)));
+    }
+
+    @Test
+    @DisplayName("GET common friends of user at /users/{id}/friends/common/{otherId}")
+    public void shouldReturnCommonFriends() throws Exception {
+
+        User user = userStorage.add(User.builder().email("mail1@test.com").build());
+        User friend = userStorage.add(User.builder().email("mail2@test.com").build());
+        User commonFriend1 = userStorage.add(User.builder().email("mail3@test.com").build());
+        User commonFriend2 = userStorage.add(User.builder().email("mail4@test.com").build());
+
+        userStorage.saveLikes(
+                user.getId(), new HashSet<>(Arrays.asList(
+                        userStorage.add(User.builder().email("mail5@test.com").build()).getId(),
+                        userStorage.add(User.builder().email("mail6@test.com").build()).getId(),
+                        userStorage.add(User.builder().email("mail7@test.com").build()).getId(),
+                        commonFriend1.getId(),
+                        commonFriend2.getId()
+                ))
+        );
+
+        userStorage.saveLikes(
+                friend.getId(), new HashSet<>(Arrays.asList(
+                        userStorage.add(User.builder().email("mail8@test.com").build()).getId(),
+                        userStorage.add(User.builder().email("mail9@test.com").build()).getId(),
+                        userStorage.add(User.builder().email("mail10@test.com").build()).getId(),
+                        commonFriend1.getId(),
+                        commonFriend2.getId()
+                ))
+        );
+
+        mockMvc.perform(get("/users/" + user.getId() + "/friends/common/" + friend.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", hasSize(2)));
+    }
+
 }

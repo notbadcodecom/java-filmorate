@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -11,6 +12,7 @@ import java.time.*;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
+@Builder
 @IdValidation(value = "film", groups = {Update.class})
 public class Film extends Id {
     @NotBlank(message = "Name should be not blank", groups = {Create.class})

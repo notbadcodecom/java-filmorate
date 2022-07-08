@@ -7,19 +7,39 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest
 @AutoConfigureMockMvc
 class FilmControllerTest {
 
+    private final MockMvc mockMvc;
+    private final InMemoryFilmStorage filmStorage;
+    private final InMemoryUserStorage userStorage;
+
     @Autowired
-    private MockMvc mockMvc;
+    public FilmControllerTest(
+            MockMvc mockMvc, InMemoryFilmStorage filmStorage, InMemoryUserStorage userStorage
+    ) {
+        this.mockMvc = mockMvc;
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+    }
 
     @Test
     @DisplayName("POST create film at /films")
@@ -214,5 +234,75 @@ class FilmControllerTest {
                                 " \"duration\": 191}"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.id").value("Invalid ID or no film with this ID"));
+    }
+
+    @Test
+    @DisplayName("PUT score to film with invalid id at /films/{id}/like/{userId}")
+    public void shouldReturn404ThenAddScoreIfNoSuchFilm() throws Exception {
+        User user = userStorage.add(User.builder().build());
+        mockMvc.perform(put("/films/" + 999 + "/like/" + user.getId()))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @DisplayName("PUT score to film with invalid user id at /films/{id}/like/{userId}")
+    public void shouldReturn404ThenAddScoreIfNoSuchUser() throws Exception {
+        Film film = filmStorage.add(Film.builder().build());
+        mockMvc.perform(put("/films/" + film.getId() + "/like/" + 999))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @DisplayName("PUT and DELETE score from film at /films/{id}/like/{userId}")
+    public void shouldAddAndDeleteFilmScore() throws Exception {
+        User user = userStorage.add(User.builder().build());
+        Film film = filmStorage.add(Film.builder().build());
+
+        mockMvc.perform(put("/films/" + film.getId() + "/like/" + user.getId()))
+                .andExpect(status().isOk());
+        Set<Integer> likes = filmStorage.loadScores(film.getId()).orElse(Set.of(-1));
+        int count = likes.size();
+        assertTrue(likes.contains(user.getId()), "Movie score not added!");
+
+        mockMvc.perform(delete("/films/" + film.getId() + "/like/" + user.getId()))
+                .andExpect(status().isNoContent());
+        likes = filmStorage.loadScores(film.getId()).orElse(Set.of(-1));
+        assertEquals(--count, likes.size(), "Movie score not deleted");
+    }
+
+    @Test
+    @DisplayName("GET popular films at /films/popular")
+    public void shouldReturnPopularFilm() throws Exception {
+
+        Film lastScoresFilm = filmStorage.add(Film.builder().build());
+        filmStorage.saveScores(lastScoresFilm.getId(), new HashSet<>(List.of(1)));
+        filmStorage.saveScores(filmStorage.add(Film.builder().build()).getId(), new HashSet<>(Arrays.asList(1,2)));
+        filmStorage.saveScores(filmStorage.add(Film.builder().build()).getId(), new HashSet<>(Arrays.asList(1,2,3)));
+        filmStorage.saveScores(filmStorage.add(Film.builder().build()).getId(), new HashSet<>(Arrays.asList(1,2,3,4)));
+        filmStorage.saveScores(
+                filmStorage.add(Film.builder().build()).getId(), new HashSet<>(Arrays.asList(1,2,3,4,5))
+        );
+        filmStorage.saveScores(
+                filmStorage.add(Film.builder().build()).getId(), new HashSet<>(Arrays.asList(1,2,3,4,5,6))
+        );
+        filmStorage.saveScores(
+                filmStorage.add(Film.builder().build()).getId(), new HashSet<>(Arrays.asList(1,2,3,4,5,6,7))
+        );
+        filmStorage.saveScores(
+                filmStorage.add(Film.builder().build()).getId(), new HashSet<>(Arrays.asList(1,2,3,4,5,6,7,8))
+        );
+        Film maxScoresFilm = filmStorage.add(Film.builder().build());
+        filmStorage.saveScores(maxScoresFilm.getId(), new HashSet<>(Arrays.asList(1,2,3,4,5,6,7,8,9)));
+        filmStorage.saveScores(filmStorage.add(Film.builder().build()).getId(), new HashSet<>());
+
+        mockMvc.perform(get("/films/popular"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", hasSize(10)))
+                .andExpect(jsonPath("$[0].id").value(maxScoresFilm.getId()))
+                .andExpect(jsonPath("$[8].id").value(lastScoresFilm.getId()));
+
+        mockMvc.perform(get("/films/popular?&count=5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", hasSize(5)));
     }
 }
