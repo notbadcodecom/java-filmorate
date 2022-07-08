@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.*;
 
 @Slf4j
-@Component
+@Component("filmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
 
     private int filmIdCounter;
@@ -44,14 +44,14 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void saveScores(int id, Set<Integer> newScores) {
         scores.put(id, newScores);
-        log.debug("Save for id #{} to memory {} like(s)", id, newScores.size());
+        log.debug("Save for id #{} to memory {} score(s)", id, newScores.size());
     }
 
     @Override
     public Optional<Set<Integer>> loadScores(int id) {
         int count = (scores.get(id) == null) ? 0 : scores.get(id).size();
         log.debug(
-                "Load from memory {} like(s) for id #{}",
+                "Load from memory {} score(s) for id #{}",
                 count,
                 id
         );
