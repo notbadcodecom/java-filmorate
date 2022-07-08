@@ -70,7 +70,7 @@ public class UserService {
         Set<Integer> likes = getLikesIds(id);
         likes.add(friendId);
         log.debug("Create like from user #{} to user #{}", friendId, id);
-        storage.saveLikes(id, likes);
+        storage.saveMarks(id, likes);
     }
 
     public void deleteLikes(int id, int friendId) {
@@ -82,7 +82,7 @@ public class UserService {
     private void deleteLike(int id, int friendId) {
         Set<Integer> likes = getLikesIds(id);
         likes.remove(friendId);
-        storage.saveLikes(id, likes);
+        storage.saveMarks(id, likes);
         log.debug("Delete like from user #{} to user #{}",  id, friendId);
     }
 
@@ -110,7 +110,7 @@ public class UserService {
     }
 
     private Set<Integer> getLikesIds(int id) {
-        return storage.loadLikes(id).orElseGet(HashSet::new);
+        return storage.loadMarks(id).orElseGet(HashSet::new);
     }
 
     private boolean hasNotUserId(int id) {

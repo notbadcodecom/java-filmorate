@@ -72,7 +72,7 @@ public class FilmService {
         log.debug("Score before adding is {}", likes.size());
         likes.add(userId);
         log.debug("Score after adding is {}", likes.size());
-        filmStorage.saveLikes(id, likes);
+        filmStorage.saveMarks(id, likes);
     }
 
     public void deleteLike(int id, int userId) {
@@ -83,21 +83,21 @@ public class FilmService {
         log.debug("Score before deleting is {}", likes.size());
         likes.remove(userId);
         log.debug("Score after deleting is {}", likes.size());
-        filmStorage.saveLikes(id, likes);
+        filmStorage.saveMarks(id, likes);
     }
 
     public List<Film> getPopular(int count) {
         List<Film> popular = getAll().stream()
                 .sorted((f1, f2) -> {
-                    if (filmStorage.loadLikes(f1.getId()).isEmpty() && filmStorage.loadLikes(f1.getId()).isEmpty()) {
+                    if (filmStorage.loadMarks(f1.getId()).isEmpty() && filmStorage.loadMarks(f1.getId()).isEmpty()) {
                         return 0;
-                    } else if (filmStorage.loadLikes(f2.getId()).isEmpty()) {
+                    } else if (filmStorage.loadMarks(f2.getId()).isEmpty()) {
                         return -1;
-                    } else if (filmStorage.loadLikes(f1.getId()).isEmpty()) {
+                    } else if (filmStorage.loadMarks(f1.getId()).isEmpty()) {
                         return 1;
                     } else {
-                        return filmStorage.loadLikes(f2.getId()).get().size()
-                                - filmStorage.loadLikes(f1.getId()).get().size();
+                        return filmStorage.loadMarks(f2.getId()).get().size()
+                                - filmStorage.loadMarks(f1.getId()).get().size();
                     }
                 })
                 .limit(count)
@@ -108,7 +108,7 @@ public class FilmService {
     }
 
     private Set<Integer> getLikesIds(int id) {
-        return filmStorage.loadLikes(id).orElseGet(HashSet::new);
+        return filmStorage.loadMarks(id).orElseGet(HashSet::new);
     }
 
     private boolean hasNotFilmId(int id) {

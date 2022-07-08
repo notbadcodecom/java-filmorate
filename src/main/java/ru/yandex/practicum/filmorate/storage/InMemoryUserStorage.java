@@ -8,7 +8,7 @@ import java.util.*;
 
 @Slf4j
 @Component("userStorage")
-public class InMemoryUserStorage extends InMemoryLikeStorage implements Storage<User> {
+public class InMemoryUserStorage extends InMemoryMarkStorage implements Storage<User> {
 
     private int userIdCounter;
     private final Map<Integer, User> users;

@@ -8,7 +8,7 @@ import java.util.*;
 
 @Slf4j
 @Component("filmStorage")
-public class InMemoryFilmStorage extends InMemoryLikeStorage implements Storage<Film> {
+public class InMemoryFilmStorage extends InMemoryMarkStorage implements Storage<Film> {
 
     private int filmIdCounter;
     private final Map<Integer, Film> films;
