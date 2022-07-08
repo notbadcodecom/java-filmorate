@@ -14,8 +14,8 @@ public interface UserStorage {
 
     ArrayList<User> getAll();
 
-    void saveLikes(int id, Set<Integer> likes);
+    void saveFriends(int id, Set<Integer> likes);
 
-    Optional<Set<Integer>> loadLikes(int id);
+    Optional<Set<Integer>> loadFriends(int id);
 
 }

@@ -12,12 +12,12 @@ public class InMemoryUserStorage implements UserStorage {
 
     private int userIdCounter;
     private final Map<Integer, User> users;
-    private final Map<Integer, Set<Integer>> likes;
+    private final Map<Integer, Set<Integer>> friends;
 
     public InMemoryUserStorage() {
         userIdCounter = 0;
         users = new HashMap<>();
-        likes = new HashMap<>();
+        friends = new HashMap<>();
     }
 
     @Override
@@ -42,19 +42,19 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void saveLikes(int id, Set<Integer> newLikes) {
-        likes.put(id, newLikes);
-        log.debug("Save for id #{} to memory {} like(s)", id, newLikes.size());
+    public void saveFriends(int id, Set<Integer> newLikes) {
+        friends.put(id, newLikes);
+        log.debug("Save for id #{} to memory {} friend(s)", id, newLikes.size());
     }
 
     @Override
-    public Optional<Set<Integer>> loadLikes(int id) {
-        int count = (likes.get(id) == null) ? 0 : likes.get(id).size();
+    public Optional<Set<Integer>> loadFriends(int id) {
+        int count = (friends.get(id) == null) ? 0 : friends.get(id).size();
         log.debug(
-                "Load from memory {} like(s) for id #{}",
+                "Load from memory {} friend(s) for id #{}",
                 count,
                 id
         );
-        return Optional.ofNullable(likes.get(id));
+        return Optional.ofNullable(friends.get(id));
     }
 }

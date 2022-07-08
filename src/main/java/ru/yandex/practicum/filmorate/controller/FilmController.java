@@ -58,14 +58,14 @@ public class FilmController {
     @ResponseStatus(HttpStatus.OK)
     public void createScore(@PathVariable int id, @PathVariable int userId) {
         log.debug("PUT film score");
-        filmService.addLike(id, userId);
+        filmService.addScore(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteScore(@PathVariable int id, @PathVariable int userId) {
         log.debug("DELETE film score");
-        filmService.deleteLike(id, userId);
+        filmService.deleteScore(id, userId);
     }
 
     @GetMapping("/popular")

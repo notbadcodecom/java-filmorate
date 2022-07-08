@@ -43,7 +43,6 @@ public class UserService {
     public ArrayList<User> getAll() {
         ArrayList<User> users = storage.getAll();
         log.debug("Return {} users", users.size());
-        log.debug("List of users {}", users);
         return users;
     }
 
@@ -58,30 +57,30 @@ public class UserService {
         }
     }
 
-    public void addLikes(int id, int friendId) {
+    public void addFriendsToEachOther(int id, int friendId) {
         if (hasNotUserId(id) || hasNotUserId(friendId)) throw new NotFoundException("User not found.");
-        addLike(id, friendId);
-        addLike(friendId, id);
+        addFriend(id, friendId);
+        addFriend(friendId, id);
     }
 
-    private void addLike(int id, int friendId) {
+    private void addFriend(int id, int friendId) {
         Set<Integer> likes = getLikes(id);
         likes.add(friendId);
-        log.debug("Create like from user #{} to user #{}", friendId, id);
-        storage.saveLikes(id, likes);
+        log.debug("Create friendship from user #{} to user #{}", friendId, id);
+        storage.saveFriends(id, likes);
     }
 
-    public void deleteLikes(int id, int friendId) {
+    public void deleteFriendsFromEachOther(int id, int friendId) {
         if (hasNotUserId(id) || hasNotUserId(friendId)) throw new NotFoundException("User not found");
-        deleteLike(id, friendId);
-        deleteLike(friendId, id);
+        deleteFriend(id, friendId);
+        deleteFriend(friendId, id);
     }
 
-    private void deleteLike(int id, int friendId) {
+    private void deleteFriend(int id, int friendId) {
         Set<Integer> likes = getLikes(id);
         likes.remove(friendId);
-        storage.saveLikes(id, likes);
-        log.debug("Delete like from user #{} to user #{}",  id, friendId);
+        storage.saveFriends(id, likes);
+        log.debug("Delete friendship from user #{} to user #{}",  id, friendId);
     }
 
     public List<User> getFriends(int id) {
@@ -91,24 +90,22 @@ public class UserService {
                 .map(Optional::get)
                 .collect(Collectors.toList());
         log.debug("Return {} friends", friends.size());
-        log.debug("List of friends: {}", friends);
         return friends;
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
-        List<User> commonFriends = getLikes(id).stream()
+        List<User> friends = getLikes(id).stream()
                 .filter(getLikes(otherId)::contains)
                 .map(storage::get)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
-        log.debug("Return {} common friends", commonFriends.size());
-        log.debug("List of common friends: {}", commonFriends);
-        return commonFriends;
+        log.debug("Return {} common friends", friends.size());
+        return friends;
     }
 
     private Set<Integer> getLikes(int id) {
-        return storage.loadLikes(id).orElseGet(HashSet::new);
+        return storage.loadFriends(id).orElseGet(HashSet::new);
     }
 
     private boolean hasNotUserId(int id) {

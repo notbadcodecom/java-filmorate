@@ -212,12 +212,12 @@ class UserControllerTest {
                 .andExpect(status().isOk());
 
         assertTrue(
-                userStorage.loadLikes(user.getId()).orElseGet(HashSet::new).contains(friend.getId()),
+                userStorage.loadFriends(user.getId()).orElseGet(HashSet::new).contains(friend.getId()),
                 "Friend was not added to user"
         );
 
         assertTrue(
-                userStorage.loadLikes(friend.getId()).orElseGet(HashSet::new).contains(user.getId()),
+                userStorage.loadFriends(friend.getId()).orElseGet(HashSet::new).contains(user.getId()),
                 "User was not added to friend"
         );
 
@@ -225,12 +225,12 @@ class UserControllerTest {
                 .andExpect(status().isNoContent());
 
         assertFalse(
-                userStorage.loadLikes(user.getId()).orElseGet(HashSet::new).contains(friend.getId()),
+                userStorage.loadFriends(user.getId()).orElseGet(HashSet::new).contains(friend.getId()),
                 "Friend was not deleted from user"
         );
 
         assertFalse(
-                userStorage.loadLikes(friend.getId()).orElseGet(HashSet::new).contains(user.getId()),
+                userStorage.loadFriends(friend.getId()).orElseGet(HashSet::new).contains(user.getId()),
                 "User was not deleted from friend"
         );
     }
@@ -241,7 +241,7 @@ class UserControllerTest {
 
         User user = userStorage.add(User.builder().email("new4@mail.rr").build());
 
-        userStorage.saveLikes(
+        userStorage.saveFriends(
                 user.getId(), new HashSet<>(Arrays.asList(
                         userStorage.add(User.builder().email("new1@mail.rr").build()).getId(),
                         userStorage.add(User.builder().email("new2@mail.rr").build()).getId(),
@@ -263,7 +263,7 @@ class UserControllerTest {
         User commonFriend1 = userStorage.add(User.builder().email("mail3@test.com").build());
         User commonFriend2 = userStorage.add(User.builder().email("mail4@test.com").build());
 
-        userStorage.saveLikes(
+        userStorage.saveFriends(
                 user.getId(), new HashSet<>(Arrays.asList(
                         userStorage.add(User.builder().email("mail5@test.com").build()).getId(),
                         userStorage.add(User.builder().email("mail6@test.com").build()).getId(),
@@ -273,7 +273,7 @@ class UserControllerTest {
                 ))
         );
 
-        userStorage.saveLikes(
+        userStorage.saveFriends(
                 friend.getId(), new HashSet<>(Arrays.asList(
                         userStorage.add(User.builder().email("mail8@test.com").build()).getId(),
                         userStorage.add(User.builder().email("mail9@test.com").build()).getId(),

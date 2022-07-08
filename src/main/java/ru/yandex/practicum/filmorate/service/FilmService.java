@@ -46,7 +46,6 @@ public class FilmService {
     public ArrayList<Film> getAll() {
         ArrayList<Film> films = filmStorage.getAll();
         log.debug("Load {} movies", films.size());
-        log.debug("List of movies: {}", films);
         return films;
     }
 
@@ -61,7 +60,7 @@ public class FilmService {
         }
     }
 
-    public void addLike(int id, int userId) {
+    public void addScore(int id, int userId) {
         if (hasNotFilmId(id)) throw new NotFoundException("Movie not found");
         if (hasNotUserId(userId)) throw new NotFoundException("User not found");
         log.debug("Creating score for movie #{} from user #{}",  id, userId);
@@ -72,7 +71,7 @@ public class FilmService {
         filmStorage.saveScores(id, likes);
     }
 
-    public void deleteLike(int id, int userId) {
+    public void deleteScore(int id, int userId) {
         if (hasNotFilmId(id)) throw new NotFoundException("Movie not found");
         if (hasNotUserId(userId)) throw new NotFoundException("User not found");
         log.debug("Delete score of movie #{} from user #{}",  id, userId);
@@ -100,7 +99,6 @@ public class FilmService {
                 .limit(count)
                 .collect(Collectors.toList());
         log.debug("Return {} popular films", popular.size());
-        log.debug("List of popular films: {}", popular);
         return popular;
     }
 
