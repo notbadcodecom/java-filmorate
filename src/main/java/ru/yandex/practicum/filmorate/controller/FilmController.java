@@ -7,14 +7,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmScoreService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.validation.Create;
 import ru.yandex.practicum.filmorate.validation.Update;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -22,12 +20,10 @@ import java.util.Optional;
 public class FilmController {
 
     private final FilmService filmService;
-    private final FilmScoreService scoreService;
 
     @Autowired
-    public FilmController(FilmService filmService, FilmScoreService scoreService) {
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
-        this.scoreService = scoreService;
     }
 
     @GetMapping("")
@@ -62,20 +58,20 @@ public class FilmController {
     @ResponseStatus(HttpStatus.OK)
     public void createScore(@PathVariable int id, @PathVariable int userId) {
         log.debug("PUT film score");
-        scoreService.addLike(id, userId);
+        filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteScore(@PathVariable int id, @PathVariable int userId) {
         log.debug("DELETE film score");
-        scoreService.deleteLike(id, userId);
+        filmService.deleteLike(id, userId);
     }
 
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
     public List<Film> getPopular(@RequestParam(required = false, defaultValue = "10") int count) {
         log.debug("GET popular");
-        return scoreService.getPopular(count);
+        return filmService.getPopular(count);
     }
 }
