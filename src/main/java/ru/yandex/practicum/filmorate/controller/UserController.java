@@ -1,69 +1,82 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.data.InMemoryData;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validation.Create;
 import ru.yandex.practicum.filmorate.validation.Update;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private final InMemoryData data = InMemoryData.getInstance();
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<User> getUsers() {
-        log.debug("Total users [{}]", data.getUsers().size());
-        return data.getUsers();
+    public List<User> get() {
+        log.debug("GET all users");
+        return userService.getAll();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public User get(@PathVariable int id) {
+        log.debug("GET user by id");
+        return userService.get(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User create(@Validated(Create.class) @RequestBody User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        user.setId(data.getUserId());
-        data.addUser(user);
-        log.debug("Add user [{}]", user);
-        return user;
+        log.debug("POST new user");
+        return userService.create(user);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public User update(@Validated(Update.class) @RequestBody User user) {
-        User updatedUser = data.getUser(user.getId());
-        if (!updatedUser.getEmail().equals(user.getEmail())) {
-            data.removeEmail(data.getUser(user.getId()).getEmail());
-        }
-        if (user.getBirthday() == null) user.setBirthday(updatedUser.getBirthday());
-        if (user.getLogin() == null) user.setLogin(updatedUser.getLogin());
-        if (user.getEmail() == null) user.setEmail(updatedUser.getEmail());
-        data.addUser(user);
-        log.debug("Update user [{}]", user);
-        return user;
+        log.debug("PUT user");
+        return userService.update(user);
     }
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        return ex.getBindingResult().getFieldErrors().stream()
-                .peek(e -> log.debug("Validation error [{}]", e.getDefaultMessage()))
-                .collect(Collectors.toMap(
-                        FieldError::getField,
-                        DefaultMessageSourceResolvable::getDefaultMessage
-                ));
+    @PutMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void createFriendship(@PathVariable int id, @PathVariable int friendId) {
+        log.debug("PUT friendship");
+        userService.addFriendsToEachOther(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteFriendship(@PathVariable int id, @PathVariable int friendId) {
+        log.debug("DELETE friendship");
+        userService.deleteFriendsFromEachOther(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> getFriends(@PathVariable int id) {
+        log.debug("GET friends");
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+        log.debug("GET common friends");
+        return userService.getCommonFriends(id, otherId);
     }
 }
