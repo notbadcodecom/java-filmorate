@@ -9,9 +9,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.util.NestedServletException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,6 +45,13 @@ public class ErrorHandler {
         return (errors.containsKey("id"))
                 ? new ResponseEntity<>(errors, HttpStatus.NOT_FOUND)
                 : new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(NestedServletException.class)
+    public Map<String, String> handleNestedServletException(NestedServletException ex) {
+        log.debug("Server error: {}", ex.getMessage());
+        return Map.of("error", Objects.requireNonNull(ex.getMessage()));
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
