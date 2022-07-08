@@ -7,15 +7,17 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.*;
 
 @Slf4j
-@Component("userStorage")
-public class InMemoryUserStorage extends InMemoryMarkStorage implements Storage<User> {
+@Component
+public class InMemoryUserStorage implements UserStorage {
 
     private int userIdCounter;
     private final Map<Integer, User> users;
+    private final Map<Integer, Set<Integer>> likes;
 
     public InMemoryUserStorage() {
         userIdCounter = 0;
         users = new HashMap<>();
+        likes = new HashMap<>();
     }
 
     @Override
@@ -37,5 +39,22 @@ public class InMemoryUserStorage extends InMemoryMarkStorage implements Storage<
     public ArrayList<User> getAll() {
         log.debug("Getting all ({}) users", users.size());
         return new ArrayList<>(users.values());
+    }
+
+    @Override
+    public void saveLikes(int id, Set<Integer> newLikes) {
+        likes.put(id, newLikes);
+        log.debug("Save for id #{} to memory {} like(s)", id, newLikes.size());
+    }
+
+    @Override
+    public Optional<Set<Integer>> loadLikes(int id) {
+        int count = (likes.get(id) == null) ? 0 : likes.get(id).size();
+        log.debug(
+                "Load from memory {} like(s) for id #{}",
+                count,
+                id
+        );
+        return Optional.ofNullable(likes.get(id));
     }
 }

@@ -7,15 +7,17 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.*;
 
 @Slf4j
-@Component("filmStorage")
-public class InMemoryFilmStorage extends InMemoryMarkStorage implements Storage<Film> {
+@Component
+public class InMemoryFilmStorage implements FilmStorage {
 
     private int filmIdCounter;
     private final Map<Integer, Film> films;
+    private final Map<Integer, Set<Integer>> scores;
 
     public InMemoryFilmStorage() {
         filmIdCounter = 0;
         films = new HashMap<>();
+        scores = new HashMap<>();
     }
 
     @Override
@@ -37,5 +39,22 @@ public class InMemoryFilmStorage extends InMemoryMarkStorage implements Storage<
     public ArrayList<Film> getAll() {
         log.debug("Getting all ({}) movies.", films.size());
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public void saveScores(int id, Set<Integer> newScores) {
+        scores.put(id, newScores);
+        log.debug("Save for id #{} to memory {} like(s)", id, newScores.size());
+    }
+
+    @Override
+    public Optional<Set<Integer>> loadScores(int id) {
+        int count = (scores.get(id) == null) ? 0 : scores.get(id).size();
+        log.debug(
+                "Load from memory {} like(s) for id #{}",
+                count,
+                id
+        );
+        return Optional.ofNullable(scores.get(id));
     }
 }

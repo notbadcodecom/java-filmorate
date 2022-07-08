@@ -2,14 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.Storage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,14 +16,12 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class FilmService {
-    @Qualifier("filmStorage")
-    private final Storage<Film> filmStorage;
 
-    @Qualifier("filmStorage")
-    private final Storage<User> userStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(Storage<Film> filmStorage, Storage<User> userStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
@@ -68,36 +65,36 @@ public class FilmService {
         if (hasNotFilmId(id)) throw new NotFoundException("Movie not found");
         if (hasNotUserId(userId)) throw new NotFoundException("User not found");
         log.debug("Creating score for movie #{} from user #{}",  id, userId);
-        Set<Integer> likes = getLikesIds(id);
+        Set<Integer> likes = getScores(id);
         log.debug("Score before adding is {}", likes.size());
         likes.add(userId);
         log.debug("Score after adding is {}", likes.size());
-        filmStorage.saveMarks(id, likes);
+        filmStorage.saveScores(id, likes);
     }
 
     public void deleteLike(int id, int userId) {
         if (hasNotFilmId(id)) throw new NotFoundException("Movie not found");
         if (hasNotUserId(userId)) throw new NotFoundException("User not found");
         log.debug("Delete score of movie #{} from user #{}",  id, userId);
-        Set<Integer> likes = getLikesIds(id);
+        Set<Integer> likes = getScores(id);
         log.debug("Score before deleting is {}", likes.size());
         likes.remove(userId);
         log.debug("Score after deleting is {}", likes.size());
-        filmStorage.saveMarks(id, likes);
+        filmStorage.saveScores(id, likes);
     }
 
     public List<Film> getPopular(int count) {
         List<Film> popular = getAll().stream()
                 .sorted((f1, f2) -> {
-                    if (filmStorage.loadMarks(f1.getId()).isEmpty() && filmStorage.loadMarks(f1.getId()).isEmpty()) {
+                    if (filmStorage.loadScores(f1.getId()).isEmpty() && filmStorage.loadScores(f1.getId()).isEmpty()) {
                         return 0;
-                    } else if (filmStorage.loadMarks(f2.getId()).isEmpty()) {
+                    } else if (filmStorage.loadScores(f2.getId()).isEmpty()) {
                         return -1;
-                    } else if (filmStorage.loadMarks(f1.getId()).isEmpty()) {
+                    } else if (filmStorage.loadScores(f1.getId()).isEmpty()) {
                         return 1;
                     } else {
-                        return filmStorage.loadMarks(f2.getId()).get().size()
-                                - filmStorage.loadMarks(f1.getId()).get().size();
+                        return filmStorage.loadScores(f2.getId()).get().size()
+                                - filmStorage.loadScores(f1.getId()).get().size();
                     }
                 })
                 .limit(count)
@@ -107,8 +104,8 @@ public class FilmService {
         return popular;
     }
 
-    private Set<Integer> getLikesIds(int id) {
-        return filmStorage.loadMarks(id).orElseGet(HashSet::new);
+    private Set<Integer> getScores(int id) {
+        return filmStorage.loadScores(id).orElseGet(HashSet::new);
     }
 
     private boolean hasNotFilmId(int id) {
