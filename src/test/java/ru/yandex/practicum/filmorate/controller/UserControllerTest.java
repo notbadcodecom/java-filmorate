@@ -239,13 +239,13 @@ class UserControllerTest {
     @DisplayName("GET all friends of user at /users/{id}/friends")
     public void shouldReturnAllUserFriends() throws Exception {
 
-        User user = userStorage.add(User.builder().build());
+        User user = userStorage.add(User.builder().email("new4@mail.rr").build());
 
         userStorage.saveLikes(
                 user.getId(), new HashSet<>(Arrays.asList(
-                        userStorage.add(User.builder().build()).getId(),
-                        userStorage.add(User.builder().build()).getId(),
-                        userStorage.add(User.builder().build()).getId()
+                        userStorage.add(User.builder().email("new1@mail.rr").build()).getId(),
+                        userStorage.add(User.builder().email("new2@mail.rr").build()).getId(),
+                        userStorage.add(User.builder().email("new3@mail.rr").build()).getId()
                 ))
         );
 
