@@ -239,7 +239,7 @@ class FilmControllerTest {
     @Test
     @DisplayName("PUT score to film with invalid id at /films/{id}/like/{userId}")
     public void shouldReturn404ThenAddScoreIfNoSuchFilm() throws Exception {
-        User user = userStorage.add(User.builder().build());
+        User user = userStorage.add(User.builder().email("some@mail.io").build());
         mockMvc.perform(put("/films/" + 999 + "/like/" + user.getId()))
                 .andExpect(status().is4xxClientError());
     }
@@ -255,7 +255,7 @@ class FilmControllerTest {
     @Test
     @DisplayName("PUT and DELETE score from film at /films/{id}/like/{userId}")
     public void shouldAddAndDeleteFilmScore() throws Exception {
-        User user = userStorage.add(User.builder().build());
+        User user = userStorage.add(User.builder().email("some2@mail.io").build());
         Film film = filmStorage.add(Film.builder().build());
 
         mockMvc.perform(put("/films/" + film.getId() + "/like/" + user.getId()))
