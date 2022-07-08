@@ -9,11 +9,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.util.NestedServletException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -22,16 +21,16 @@ public class ErrorHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
-    public Map<String, String> handleNoSuchElementFoundException(NotFoundException ex) {
+    public ErrorResponse handleNoSuchElementFoundException(NotFoundException ex) {
         log.debug("Not found error: {}", ex.getMessage());
-        return Map.of("error", ex.getMessage());
+        return new ErrorResponse(ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public Map<String, String> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+    public ErrorResponse handleMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
         log.debug("Method not support: {}", ex.getMessage());
-        return Map.of("error", ex.getMessage());
+        return new ErrorResponse(ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -48,16 +47,9 @@ public class ErrorHandler {
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(NestedServletException.class)
-    public Map<String, String> handleNestedServletException(NestedServletException ex) {
-        log.debug("Server error: {}", ex.getMessage());
-        return Map.of("error", Objects.requireNonNull(ex.getMessage()));
-    }
-
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(RuntimeException.class)
-    public Map<String, String> handleServerErrorException(NotFoundException ex) {
+    public ErrorResponse handleServerErrorException(RuntimeException ex) {
         log.debug("Server error: {}", ex.getMessage());
-        return Map.of("error", ex.getMessage());
+        return new ErrorResponse(ex.getMessage());
     }
 }
