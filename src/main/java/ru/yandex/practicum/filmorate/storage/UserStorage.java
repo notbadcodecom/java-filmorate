@@ -2,20 +2,11 @@ package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 
-public interface UserStorage {
-
-    Optional<User> get(int id);
-
-    User add(User user);
-
-    ArrayList<User> getAll();
-
+public interface UserStorage extends Storage<User>{
     void saveFriends(int id, Set<Integer> likes);
 
     Optional<Set<Integer>> loadFriends(int id);
-
 }
