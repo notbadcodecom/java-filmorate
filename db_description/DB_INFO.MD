@@ -1,14 +1,14 @@
 # База данных для java-filmorate
 
 ## ER-диаграмма
-![Таблицы films, users](/img/filmorate.png)
+![Таблицы films, users](https://github.com/notbadcodecom/java-filmorate/blob/db_description/db_description/img/filmorate.png?raw=true)
 
 ## SQL-запросы
 ### Получение всех фильмов
 ```
 SELECT * FROM films;
 ```
-![films](/img/get_all_films.png)
+![films](https://github.com/notbadcodecom/java-filmorate/blob/db_description/db_description/img/get_all_films.png?raw=true)
 
 ### Получение фильма по id
 ```
@@ -16,7 +16,7 @@ SELECT *
 FROM films f
 WHERE f.film_id = 1;
 ```
-![film](/img/get_film_by_id.png)
+![film](https://github.com/notbadcodecom/java-filmorate/blob/db_description/db_description/img/get_film_by_id.png?raw=true)
 
 ### Получение жанров фильма по его id
 ```
@@ -26,7 +26,7 @@ JOIN genres g
     ON g.genre_id = f.genre_id
 WHERE f.film_id = 1;
 ```
-![genre](/img/get_genre.png)
+![genre](https://github.com/notbadcodecom/java-filmorate/blob/db_description/db_description/img/get_genre.png?raw=true)
 
 ### Получение n популярных фильмов
 ```
@@ -42,13 +42,13 @@ JOIN (
 ORDER BY r.raiting DESC
 LIMIT 3; --{n}
 ```
-![popular film](/img/get_films_by_users_rating.png)
+![popular film](https://github.com/notbadcodecom/java-filmorate/blob/db_description/db_description/img/get_films_by_users_rating.png?raw=true)
 
 ### Получение всех пользователей
 ```
 SELECT * FROM users;
 ```
-![users](/img/get_all_users.png)
+![users](https://github.com/notbadcodecom/java-filmorate/blob/db_description/db_description/img/get_all_users.png?raw=true)
 
 ### Получение пользователя по id
 ```
@@ -56,7 +56,7 @@ SELECT *
 FROM users u
 WHERE u.user_id = 2;
 ```
-![user](/img/get_user_by_id.png)
+![user](https://github.com/notbadcodecom/java-filmorate/blob/db_description/db_description/img/get_user_by_id.png?raw=true)
 
 ### Получение друзей пользователя по id
 ```
@@ -67,7 +67,7 @@ JOIN users u
 WHERE f.user_id = 1
     AND status = 'true';
 ```
-![friends](/img/get_friends.png)
+![friends](https://github.com/notbadcodecom/java-filmorate/blob/db_description/db_description/img/get_friends.png?raw=true)
 
 ### Получение общих друзей у двух пользователей по их id
 ```
@@ -85,4 +85,4 @@ JOIN users u
 WHERE f.user_id = 2
     AND status = 'true';
 ```
-![friends](/img/get_common_friends.png)
+![friends](https://github.com/notbadcodecom/java-filmorate/blob/db_description/db_description/img/get_common_friends.png?raw=true)
