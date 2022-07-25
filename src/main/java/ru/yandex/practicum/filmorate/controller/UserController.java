@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -12,7 +11,6 @@ import ru.yandex.practicum.filmorate.validation.Update;
 
 import java.util.*;
 
-@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -27,56 +25,54 @@ public class UserController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<User> get() {
-        log.debug("GET all users");
-        return userService.getAll();
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public User get(@PathVariable int id) {
-        log.debug("GET user by id");
-        return userService.get(id);
+    public User get(@PathVariable long id) {
+        return userService.getUserOrNotFoundException(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User create(@Validated(Create.class) @RequestBody User user) {
-        log.debug("POST new user");
         return userService.create(user);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public User update(@Validated(Update.class) @RequestBody User user) {
-        log.debug("PUT user");
         return userService.update(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public void createFriendship(@PathVariable int id, @PathVariable int friendId) {
-        log.debug("PUT friendship");
-        userService.addFriendsToEachOther(id, friendId);
+    public void createFriendship(@PathVariable long id, @PathVariable long friendId) {
+        userService.addFriendship(id, friendId);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}/confirm")
+    @ResponseStatus(HttpStatus.OK)
+    public void confirmFriendship(@PathVariable long id, @PathVariable long friendId) {
+        userService.confirmFriendship(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteFriendship(@PathVariable int id, @PathVariable int friendId) {
-        log.debug("DELETE friendship");
-        userService.deleteFriendsFromEachOther(id, friendId);
+    public void refuseFriendship(@PathVariable long id, @PathVariable long friendId) {
+        userService.refuseFriendship(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public List<User> getFriends(@PathVariable int id) {
-        log.debug("GET friends");
+    public List<User> getFriends(@PathVariable long id) {
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
-        log.debug("GET common friends");
+    public List<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
         return userService.getCommonFriends(id, otherId);
     }
 }

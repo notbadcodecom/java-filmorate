@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "spring.sql",
+      "type": "java.lang.String",
+      "description": "Description for spring.sql."
+    },
+    {
+      "name": "spring.sql.spring.sql.init.mode",
+      "type": "java.lang.String",
+      "description": "Description for spring.sql.spring.sql.init.mode."
+    }
+  ] }
