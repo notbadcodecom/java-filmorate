@@ -1,19 +1,23 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import ru.yandex.practicum.filmorate.validation.*;
 
-import javax.validation.constraints.*;
-import java.time.*;
 
-@Data
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
+import java.time.LocalDate;
+import java.util.List;
+
+@NoArgsConstructor
+@Setter
+@Getter
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-@Builder
-@IdValidation(value = "film", groups = {Update.class})
+@ToString
+@SuperBuilder
 public class Film extends Id {
     @NotBlank(message = "Name should be not blank", groups = {Create.class})
     String name;
@@ -33,5 +37,10 @@ public class Film extends Id {
 
     @NotNull(message = "Duration is required", groups = {Create.class})
     @Positive(message = "Duration should be positive", groups = {Create.class, Update.class})
-    Long duration;
+    long duration;
+
+    @NotNull(message = "MPA rating is required", groups = {Create.class})
+    Mpa mpa;
+
+    List<Genre> genres;
 }
