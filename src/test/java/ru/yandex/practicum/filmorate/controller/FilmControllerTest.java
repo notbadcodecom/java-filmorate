@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -13,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @SpringBootTest
+@AutoConfigureTestDatabase
 @AutoConfigureMockMvc
 class FilmControllerTest {
 
@@ -31,7 +33,8 @@ class FilmControllerTest {
                         .content("{\"name\": \"Monty Python and the Holy Grail\", " +
                                 "\"description\": \"King Arthur search for the Holy Grail\", " +
                                 "\"releaseDate\": \"1975-03-14\"," +
-                                " \"duration\": 91}"))
+                                "\"duration\": 91," +
+                                "\"mpa\": {\"id\": 1}}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").hasJsonPath())
                 .andExpect(jsonPath("$.name").value("Monty Python and the Holy Grail"))
@@ -47,7 +50,8 @@ class FilmControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"description\": \"King Arthur search for the Holy Grail\", " +
                                 "\"releaseDate\": \"1975-03-14\"," +
-                                "\"duration\": 91}"))
+                                "\"duration\": 91," +
+                                "\"mpa\": {\"id\": 1}}"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.name").value("Name should be not blank"));
     }
@@ -60,7 +64,8 @@ class FilmControllerTest {
                         .content("{\"name\": \"   \", " +
                                 "\"description\": \"King Arthur search for the Holy Grail\", " +
                                 "\"releaseDate\": \"1975-03-14\"," +
-                                "\"duration\": 91}"))
+                                "\"duration\": 91," +
+                                "\"mpa\": {\"id\": 1}}"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.name").value("Name should be not blank"));
     }
@@ -72,7 +77,8 @@ class FilmControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"Monty Python and the Holy Grail\", " +
                                 "\"releaseDate\": \"1975-03-14\"," +
-                                "\"duration\": 91}"))
+                                "\"duration\": 91," +
+                                "\"mpa\": {\"id\": 1}}"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.description").value("Description is required"));
     }
@@ -89,7 +95,8 @@ class FilmControllerTest {
                                 "ad minim veniam, quis nostrud exercitation ullamco " +
                                 "laboris nisi ut al\", " +
                                 "\"releaseDate\": \"1975-03-14\"," +
-                                "\"duration\": 91}"))
+                                "\"duration\": 91," +
+                                "\"mpa\": {\"id\": 1}}"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.description")
                         .value("Description should be less 200 characters"));
@@ -107,7 +114,8 @@ class FilmControllerTest {
                                 "ad minim veniam, quis nostrud exercitation ullamco " +
                                 "laboris nisi ut a\", " +
                                 "\"releaseDate\": \"1975-03-14\"," +
-                                "\"duration\": 91}"))
+                                "\"duration\": 91," +
+                                "\"mpa\": {\"id\": 1}}"))
                 .andExpect(status().isCreated());
     }
 
@@ -118,7 +126,8 @@ class FilmControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"Monty Python and the Holy Grail\", " +
                                 "\"description\": \"King Arthur search for the Holy Grail\", " +
-                                "\"duration\": 91}"))
+                                "\"duration\": 91," +
+                                "\"mpa\": {\"id\": 1}}"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.releaseDate").value("Release is required"));
     }
@@ -131,7 +140,8 @@ class FilmControllerTest {
                         .content("{\"name\": \"Monty Python and the Holy Grail\", " +
                                 "\"description\": \"King Arthur search for the Holy Grail\", " +
                                 "\"releaseDate\": \"1895-12-27\"," +
-                                "\"duration\": 91}"))
+                                "\"duration\": 91," +
+                                "\"mpa\": {\"id\": 1}}"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.releaseDate").value("Movie should be released after 1895-12-28"));
     }
@@ -144,7 +154,8 @@ class FilmControllerTest {
                         .content("{\"name\": \"Monty Python and the Holy Grail\", " +
                                 "\"description\": \"King Arthur search for the Holy Grail\", " +
                                 "\"releaseDate\": \"1895-12-28\"," +
-                                "\"duration\": 91}"))
+                                "\"duration\": 91," +
+                                "\"mpa\": {\"id\": 1}}"))
                 .andExpect(status().isCreated());
     }
 
@@ -155,9 +166,11 @@ class FilmControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"Monty Python and the Holy Grail\", " +
                                 "\"description\": \"King Arthur search for the Holy Grail\", " +
-                                "\"releaseDate\": \"1975-03-14\"}"))
+                                "\"releaseDate\": \"1975-03-14\"," +
+                                "\"mpa\": {\"id\": 1}}"))
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.duration").value("Duration is required"));
+                .andExpect(jsonPath("$.duration")
+                        .value("Duration should be positive"));
     }
 
     @Test
@@ -168,7 +181,8 @@ class FilmControllerTest {
                         .content("{\"name\": \"Monty Python and the Holy Grail\", " +
                                 "\"description\": \"King Arthur search for the Holy Grail\", " +
                                 "\"releaseDate\": \"1975-03-14\", " +
-                                "\"duration\": -1}"))
+                                "\"duration\": -1," +
+                                "\"mpa\": {\"id\": 1}}"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.duration").value("Duration should be positive"));
     }
@@ -181,8 +195,9 @@ class FilmControllerTest {
                         .content("{\"id\": 1, " +
                                 "\"name\": \"Updated name\", " +
                                 "\"description\": \"Updated description\", " +
-                                "\"releaseDate\": \"2000-03-14\"," +
-                                " \"duration\": 191}"))
+                                "\"releaseDate\": \"2000-03-14\","  +
+                                "\"duration\": 191," +
+                                "\"mpa\": {\"id\": 1}}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Updated name"))

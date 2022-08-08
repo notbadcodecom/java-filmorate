@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -13,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@AutoConfigureTestDatabase
 @AutoConfigureMockMvc
 class UserControllerTest {
 
@@ -28,14 +30,14 @@ class UserControllerTest {
     public void shouldAddAndReturnUser() throws Exception {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\": \"user@domen.com\", " +
-                                "\"login\": \"user-login\", " +
+                        .content("{\"email\": \"user@domen9.com\", " +
+                                "\"login\": \"user-login90\", " +
                                 "\"name\": \"User Name\"," +
                                 "\"birthday\": \"1988-04-01\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").hasJsonPath())
-                .andExpect(jsonPath("$.email").value("user@domen.com"))
-                .andExpect(jsonPath("$.login").value("user-login"))
+                .andExpect(jsonPath("$.email").value("user@domen9.com"))
+                .andExpect(jsonPath("$.login").value("user-login90"))
                 .andExpect(jsonPath("$.name").value("User Name"))
                 .andExpect(jsonPath("$.birthday").value("1988-04-01"));
     }
@@ -45,12 +47,12 @@ class UserControllerTest {
     public void shouldAddAndReturnUser_whereLoginEqualsName() throws Exception {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\": \"user@other-domen.com\", " +
-                                "\"login\": \"user-login9\", " +
+                        .content("{\"email\": \"user@other-domen99.com\", " +
+                                "\"login\": \"user-login99\", " +
                                 "\"birthday\": \"1988-04-01\"}"))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.login").value("user-login9"))
-                .andExpect(jsonPath("$.name").value("user-login9"));
+                .andExpect(jsonPath("$.login").value("user-login99"))
+                .andExpect(jsonPath("$.name").value("user-login99"));
     }
 
     @Test
@@ -124,14 +126,14 @@ class UserControllerTest {
                 .content("{\"email\": \"user@domen.com\", " +
                         "\"login\": \"user-login\", " +
                         "\"name\": \"User Name\"," +
-                        "\"birthday\": \"2088-04-01\"}"));
+                        "\"birthday\": \"2018-04-01\"}"));
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"user@domen.com\", " +
                                 "\"login\": \"user-login\", " +
                                 "\"name\": \"User Name\"," +
-                                " \"birthday\": \"2088-04-01\"}"))
+                                " \"birthday\": \"2018-04-01\"}"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.email").value("Email already in use"));
     }
