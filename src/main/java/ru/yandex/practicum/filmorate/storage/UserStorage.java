@@ -2,20 +2,30 @@ package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface UserStorage {
 
-    Optional<User> get(int id);
+    Optional<User> loadUser(long id);
 
-    User add(User user);
+    long saveUser(User user);
 
-    ArrayList<User> getAll();
+    void updateUser(User user);
 
-    void saveFriends(int id, Set<Integer> likes);
+    List<User> loadUsers();
 
-    Optional<Set<Integer>> loadFriends(int id);
+    void saveFriendshipRequest(long userId, long friendId, FriendshipStatus status);
 
+    boolean isExistFriendship(long userId, long friendId);
+
+    void deleteFriendshipRequest(long userId, long friendId);
+
+    void updateFriendshipStatus(long userId, long friendId, FriendshipStatus status);
+
+    List<User> loadUserFriends(long userId);
+
+    boolean isNotExistEmail(String email);
+
+    boolean isNotExistLogin(String login);
 }

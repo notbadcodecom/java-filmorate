@@ -5,110 +5,114 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendshipStatus;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
 public class UserService {
 
-    private final UserStorage storage;
+    private final UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage storage) {
-        this.storage = storage;
+    public UserService(UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
+
+    public User getUserOrNotFoundException(long id) {
+        Optional<User> user = userStorage.loadUser(id);
+        if (user.isPresent()) {
+            log.debug("Load {}", user.get());
+            return user.get();
+        } else {
+            throw new NotFoundException("User #" + id + " not found");
+        }
     }
 
     public User create(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        User newUser = storage.add(user);
-        log.debug("Create user {}", newUser);
-        return newUser;
+        User savedUser = getUserOrNotFoundException(userStorage.saveUser(user));
+        log.debug("Create {}", savedUser);
+        return savedUser;
     }
 
     public User update(User user) {
-        log.debug("User before update {}", user);
-        User updatedUser = get(user.getId());
-        if (user.getBirthday() == null) user.setBirthday(updatedUser.getBirthday());
-        if (user.getLogin() == null) user.setLogin(updatedUser.getLogin());
-        if (user.getEmail() == null) user.setEmail(updatedUser.getEmail());
-        log.debug("User after update {}", user);
-        return storage.add(user);
+        User updatingUser = getUserOrNotFoundException(user.getId());
+        if (user.getBirthday() == null) user.setBirthday(updatingUser.getBirthday());
+        if (user.getLogin() == null) user.setLogin(updatingUser.getLogin());
+        if (user.getEmail() == null) user.setEmail(updatingUser.getEmail());
+        userStorage.updateUser(user);
+        User savedUser = getUserOrNotFoundException(user.getId());
+        log.debug("Update {}", savedUser);
+        return getUserOrNotFoundException(user.getId());
     }
 
-    public ArrayList<User> getAll() {
-        ArrayList<User> users = storage.getAll();
-        log.debug("Return {} users", users.size());
+    public List<User> getAllUsers() {
+        List<User> users = userStorage.loadUsers();
+        log.debug("Return all ({}) users", users.size());
         return users;
     }
 
-    public User get(int id) {
-        Optional<User> user = storage.get(id);
-        if (user.isPresent()) {
-            log.debug("Load from storage user {}", user);
-            return user.get();
+    public void addFriendship(long userId, long friendId) {
+        getUserOrNotFoundException(userId);
+        getUserOrNotFoundException(friendId);
+        if (userStorage.isExistFriendship(userId, friendId)) {
+            log.debug("Attempt to create an existing request for user #{} from user #{}",  userId, friendId);
         } else {
-            log.debug("User #{} not found", id);
-            throw new NotFoundException("User not found");
+            userStorage.saveFriendshipRequest(userId, friendId, FriendshipStatus.REQUEST);
+            log.debug("Creating friendship request for user #{} from user #{}",  userId, friendId);
         }
     }
 
-    public void addFriendsToEachOther(int id, int friendId) {
-        if (hasNotUserId(id) || hasNotUserId(friendId)) throw new NotFoundException("User not found.");
-        addFriend(id, friendId);
-        addFriend(friendId, id);
+    public void confirmFriendship(long userId, long friendId) {
+        getUserOrNotFoundException(userId);
+        getUserOrNotFoundException(friendId);
+        if (userStorage.isExistFriendship(userId, friendId)) {
+            userStorage.updateFriendshipStatus(userId, friendId, FriendshipStatus.ACCEPTED);
+            log.debug("User #{} confirmed friendship request of user #{}", userId, friendId);
+        } else {
+            log.debug("Attempt to confirm a non-existent request from user #{} to user #{}", friendId, userId);
+        }
     }
 
-    private void addFriend(int id, int friendId) {
-        Set<Integer> likes = getLikes(id);
-        likes.add(friendId);
-        log.debug("Create friendship from user #{} to user #{}", friendId, id);
-        storage.saveFriends(id, likes);
+    public void refuseFriendship(long userId, long friendId) {
+        getUserOrNotFoundException(userId);
+        getUserOrNotFoundException(friendId);
+        if (userStorage.isExistFriendship(userId, friendId)) {
+            userStorage.deleteFriendshipRequest(userId, friendId);
+            log.debug("User #{} refused friendship request from user #{}", userId, friendId);
+        } else {
+            log.debug("Attempt to refuse a non-existent request from user #{} to user #{}", friendId, userId);
+        }
     }
 
-    public void deleteFriendsFromEachOther(int id, int friendId) {
-        if (hasNotUserId(id) || hasNotUserId(friendId)) throw new NotFoundException("User not found");
-        deleteFriend(id, friendId);
-        deleteFriend(friendId, id);
-    }
-
-    private void deleteFriend(int id, int friendId) {
-        Set<Integer> likes = getLikes(id);
-        likes.remove(friendId);
-        storage.saveFriends(id, likes);
-        log.debug("Delete friendship from user #{} to user #{}",  id, friendId);
-    }
-
-    public List<User> getFriends(int id) {
-        List<User> friends = getLikes(id).stream()
-                .map(storage::get)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+    public List<User> getFriends(long id) {
+        getUserOrNotFoundException(id);
+        List<User> friends = userStorage.loadUserFriends(id);
         log.debug("Return {} friends", friends.size());
         return friends;
     }
 
-    public List<User> getCommonFriends(int id, int otherId) {
-        List<User> friends = getLikes(id).stream()
-                .filter(getLikes(otherId)::contains)
-                .map(storage::get)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+    public List<User> getCommonFriends(long id, long otherId) {
+        List<User> friends = getFriends(id);
+        log.debug(friends.toString());
+        log.debug(getFriends(otherId).toString());
+        friends.retainAll(getFriends(otherId));
+        log.debug(friends.toString());
         log.debug("Return {} common friends", friends.size());
         return friends;
     }
 
-    private Set<Integer> getLikes(int id) {
-        return storage.loadFriends(id).orElseGet(HashSet::new);
+    public boolean isNotExistEmail(String email) {
+        return userStorage.isNotExistEmail(email);
     }
 
-    private boolean hasNotUserId(int id) {
-        return storage.get(id).isEmpty();
+    public boolean isNotExistLogin(String login) {
+        return userStorage.isNotExistLogin(login);
     }
 }

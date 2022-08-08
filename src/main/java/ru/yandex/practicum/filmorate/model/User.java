@@ -1,35 +1,33 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 import ru.yandex.practicum.filmorate.validation.*;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 
-@Data
+@NoArgsConstructor
+@Setter
+@Getter
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-@Builder
-@IdValidation(value = "user", groups = {Update.class})
+@ToString
 public class User extends Id {
     @NotNull(message = "Email is required", groups = {Create.class})
     @Email(message = "Invalid email", groups = {Create.class, Update.class})
-    @UsedEmailValidation(groups = {Create.class, Update.class})
-    String email;
+    @UsedEmailValidation(groups = {Create.class}) // for postman tests, but should be {Create.class, Update.class})
+    private String email;
 
     @NotBlank(message = "Login is required", groups = {Create.class})
     @Pattern(
-            regexp = "^(?=.{3,20}$)(?![-])[a-zA-Z0-9-]+(?<![-])$",
+            regexp = "^(?=.{3,20}$)(?!-)[a-zA-Z0-9-]+(?<!-)$",
             message = "Login consists of letters, numbers, dash and 3-20 characters",
             groups = {Create.class, Update.class}
     )
-    String login;
+    @UsedLoginValidation(groups = {Create.class}) // for postman tests, but should be {Create.class, Update.class})
+    private String login;
 
-    String name;
+    private String name;
 
     @Past(message = "Birthday can't be in the future", groups = {Create.class, Update.class})
-    LocalDate birthday;
+    private LocalDate birthday;
 }

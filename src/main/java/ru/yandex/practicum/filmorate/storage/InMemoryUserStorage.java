@@ -1,60 +1,88 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-@Slf4j
-@Component
+@Component("inMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
 
-    private int userIdCounter;
-    private final Map<Integer, User> users;
-    private final Map<Integer, Set<Integer>> friends;
+    private long userIdCounter;
+    private final Map<Long, User> users;
+    private final Map<Long, Set<Long>> friends;
 
     public InMemoryUserStorage() {
-        userIdCounter = 0;
+        userIdCounter = 0L;
         users = new HashMap<>();
         friends = new HashMap<>();
     }
 
     @Override
-    public Optional<User> get(int id) {
-        log.debug("Getting from memory user {}", users.get(id));
+    public Optional<User> loadUser(long id) {
         return Optional.ofNullable(users.get(id));
     }
 
     @Override
-    public User add(User user) {
+    public long saveUser(User user) {
         if (user.getId() == 0) user.setId(++userIdCounter);
-        log.debug("Generate ID for user {}", user);
         users.put(user.getId(), user);
-        log.debug("Save to memory user [{}]", user);
-        return user;
+        return user.getId();
     }
 
     @Override
-    public ArrayList<User> getAll() {
-        log.debug("Getting all ({}) users", users.size());
+    public void updateUser(User user) {
+        users.put(user.getId(), user);
+    }
+
+    @Override
+    public List<User> loadUsers() {
         return new ArrayList<>(users.values());
     }
 
     @Override
-    public void saveFriends(int id, Set<Integer> newLikes) {
-        friends.put(id, newLikes);
-        log.debug("Save for id #{} to memory {} friend(s)", id, newLikes.size());
+    public void saveFriendshipRequest(long userId, long friendId, FriendshipStatus status) {
+        Set<Long> likes = friends.get(userId);
+        likes.add(friendId);
+        friends.put(userId, likes);
     }
 
     @Override
-    public Optional<Set<Integer>> loadFriends(int id) {
-        int count = (friends.get(id) == null) ? 0 : friends.get(id).size();
-        log.debug(
-                "Load from memory {} friend(s) for id #{}",
-                count,
-                id
-        );
-        return Optional.ofNullable(friends.get(id));
+    public boolean isExistFriendship(long userId, long friendId) {
+        Set<Long> scores = friends.get(userId);
+        return scores.contains(friendId);
+    }
+
+    @Override
+    public void deleteFriendshipRequest(long userId, long friendId) {
+        Set<Long> scores = friends.get(userId);
+        scores.remove(userId);
+    }
+
+    @Override
+    public void updateFriendshipStatus(long userId, long friendId, FriendshipStatus status) {}
+
+    @Override
+    public List<User> loadUserFriends(long userId) {
+        return friends.get(userId).stream()
+                .map(this::loadUser)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isNotExistEmail(String email) {
+        return users.values().stream()
+                .map(User::getEmail)
+                .noneMatch(e -> e.equals(email));
+    }
+
+    @Override
+    public boolean isNotExistLogin(String login) {
+        return users.values().stream()
+                .map(User::getLogin)
+                .noneMatch(e -> e.equals(login));
     }
 }
