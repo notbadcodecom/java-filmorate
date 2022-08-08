@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -33,23 +32,21 @@ public class ErrorHandler {
         return new ErrorResponse(ex.getMessage());
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
+    public Map<String, String> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        return ex.getBindingResult().getFieldErrors().stream()
                 .peek(e -> log.debug("Validation error: {}", e.getDefaultMessage()))
                 .collect(Collectors.toMap(
                         FieldError::getField,
                         e -> (e.getDefaultMessage() == null) ? "validation error" : e.getDefaultMessage()
                 ));
-        return (errors.containsKey("id"))
-                ? new ResponseEntity<>(errors, HttpStatus.NOT_FOUND)
-                : new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(RuntimeException.class)
     public ErrorResponse handleServerErrorException(RuntimeException ex) {
-        log.debug("Server error: {}", ex.getMessage());
-        return new ErrorResponse(ex.getMessage());
+        log.debug("Server error {}: {},", ex.getClass(), ex.getMessage());
+        return new ErrorResponse("internal server error");
     }
 }
