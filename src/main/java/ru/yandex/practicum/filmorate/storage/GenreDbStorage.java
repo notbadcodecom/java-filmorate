@@ -33,12 +33,10 @@ public class GenreDbStorage implements GenreStorage {
     public List<Genre> loadGenresByFilmId(long id) {
         String sqlQuery =
                 "SELECT g.id, g.name " +
-                "FROM films_genres fg " +
-                "JOIN films f " +
-                "    ON f.id = fg.film_id " +
+                "FROM films_genres f " +
                 "JOIN genres g " +
-                "    ON g.id = fg.genre_id " +
-                "WHERE f.id = ?;";
+                "    ON g.id = f.genre_id " +
+                "WHERE f.film_id = ?;";
         return jdbcTemplate.query(sqlQuery, new BeanPropertyRowMapper<>(Genre.class), id);
     }
 

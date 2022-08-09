@@ -85,7 +85,7 @@ public class FilmDbStorage implements FilmStorage {
                         "f.mpa_id, " +
                         "m.name mpa, " +
                 "FROM films f " +
-                "LEFT JOIN mpa m" +
+                "JOIN mpa m" +
                 "    ON m.id = f.mpa_id;";
         return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService));
     }
@@ -105,8 +105,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public boolean hasFilmRatingFromUser(long filmId, long userId) {
         String sqlQuery = "SELECT COUNT(user_id) FROM films_ratings WHERE film_id = ? AND user_id = ?;";
-        Integer rating = jdbcTemplate.queryForObject(sqlQuery, Integer.class, filmId, userId);
-        return rating != null && rating > 0;
+        int rating = jdbcTemplate.queryForObject(sqlQuery, Integer.class, filmId, userId);
+        return rating > 0;
     }
 
     @Override

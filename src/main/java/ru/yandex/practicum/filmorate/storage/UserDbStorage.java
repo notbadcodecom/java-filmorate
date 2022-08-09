@@ -74,8 +74,8 @@ public class UserDbStorage implements UserStorage {
     @Override
     public boolean isExistFriendship(long userId, long friendId) {
         String sqlQuery = "SELECT COUNT(user_id) FROM friends WHERE user_id = ? AND friend_id = ?;";
-        Integer friendship = jdbcTemplate.queryForObject(sqlQuery, Integer.class, userId, friendId);
-        return friendship != null && friendship > 0;
+        int friendship = jdbcTemplate.queryForObject(sqlQuery, Integer.class, userId, friendId);
+        return friendship > 0;
     }
 
     @Override
@@ -113,14 +113,14 @@ public class UserDbStorage implements UserStorage {
     @Override
     public boolean isNotExistEmail(String email) {
         String sqlQuery = "SELECT COUNT(email) FROM users WHERE email = ?";
-        Integer user = jdbcTemplate.queryForObject(sqlQuery, Integer.class, email);
-        return user == null || user == 0;
+        int user = jdbcTemplate.queryForObject(sqlQuery, Integer.class, email);
+        return user == 0;
     }
 
     @Override
     public boolean isNotExistLogin(String login) {
         String sqlQuery = "SELECT COUNT(login) FROM users WHERE login = ?";
-        Integer user = jdbcTemplate.queryForObject(sqlQuery, Integer.class, login);
-        return user == null || user == 0;
+        int user = jdbcTemplate.queryForObject(sqlQuery, Integer.class, login);
+        return user == 0;
     }
 }
