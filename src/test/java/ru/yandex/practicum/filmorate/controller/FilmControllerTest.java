@@ -143,7 +143,8 @@ class FilmControllerTest {
                                 "\"duration\": 91," +
                                 "\"mpa\": {\"id\": 1}}"))
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.releaseDate").value("Movie should be released after 1895-12-28"));
+                .andExpect(jsonPath("$.releaseDate")
+                        .value("Movie should be released after 1895-12-28"));
     }
 
     @Test

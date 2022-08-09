@@ -100,10 +100,7 @@ public class UserService {
 
     public List<User> getCommonFriends(long id, long otherId) {
         List<User> friends = getFriends(id);
-        log.debug(friends.toString());
-        log.debug(getFriends(otherId).toString());
         friends.retainAll(getFriends(otherId));
-        log.debug(friends.toString());
         log.debug("Return {} common friends", friends.size());
         return friends;
     }

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,8 +21,8 @@ class GenreStorageTest {
     private final GenreStorage genreStorage;
 
     @Test
-    @DisplayName("Get Genre by id")
-    void shouldReturnMpa() {
+    @DisplayName("Get genre by id")
+    void shouldReturnGenre() {
         Optional<Genre> genreOptional = genreStorage.loadGenreById(1);
         assertThat(genreOptional)
                 .isPresent()
@@ -33,8 +32,8 @@ class GenreStorageTest {
     }
 
     @Test
-    @DisplayName("Get mpa size 6")
-    void shouldReturnMpaSize_6() {
+    @DisplayName("Get genre size 6")
+    void shouldReturnArrayListGenreSize_6() {
         List<Genre> genre = genreStorage.loadAllGenres();
         assertThat(genre).hasSize(6);
     }
