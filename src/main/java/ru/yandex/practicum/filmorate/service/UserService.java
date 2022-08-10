@@ -61,8 +61,8 @@ public class UserService {
     public void addFriendship(long userId, long friendId) {
         getUserOrNotFoundException(userId);
         getUserOrNotFoundException(friendId);
-        if (userStorage.isExistFriendship(userId, friendId)) {
-            log.debug("Attempt to create an existing request for user #{} from user #{}",  userId, friendId);
+        if (userStorage.isExistFriendship(userId, friendId) || userStorage.isExistFriendship(friendId, userId)) {
+            log.debug("Attempt to create an existing request for user #{} from user #{}", userId, friendId);
         } else {
             userStorage.saveFriendshipRequest(userId, friendId, FriendshipStatus.REQUEST);
             log.debug("Creating friendship request for user #{} from user #{}",  userId, friendId);
@@ -74,6 +74,10 @@ public class UserService {
         getUserOrNotFoundException(friendId);
         if (userStorage.isExistFriendship(userId, friendId)) {
             userStorage.updateFriendshipStatus(userId, friendId, FriendshipStatus.ACCEPTED);
+            userStorage.deleteFriendshipRequest(friendId, userId);
+            log.debug("User #{} confirmed friendship request of user #{}", userId, friendId);
+        } else if (userStorage.isExistFriendship(friendId, userId)) {
+            userStorage.updateFriendshipStatus(friendId, userId, FriendshipStatus.ACCEPTED);
             log.debug("User #{} confirmed friendship request of user #{}", userId, friendId);
         } else {
             log.debug("Attempt to confirm a non-existent request from user #{} to user #{}", friendId, userId);

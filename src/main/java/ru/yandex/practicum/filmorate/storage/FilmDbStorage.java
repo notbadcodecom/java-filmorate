@@ -35,7 +35,7 @@ public class FilmDbStorage implements FilmStorage {
                         "f.mpa_id, " +
                         "m.name mpa " +
                 "FROM films f " +
-                "LEFT JOIN mpa m" +
+                "JOIN mpa m" +
                 "    ON m.id = f.mpa_id " +
                 "WHERE f.id = ?;";
         return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService), id).stream().findAny();
@@ -120,7 +120,7 @@ public class FilmDbStorage implements FilmStorage {
                         "f.mpa_id, " +
                         "m.name mpa, " +
                 "FROM films f " +
-                "LEFT JOIN mpa m" +
+                "JOIN mpa m" +
                 "    ON m.id = f.mpa_id " +
                 "LEFT JOIN (SELECT film_id, " +
                 "      COUNT(user_id) rating " +
