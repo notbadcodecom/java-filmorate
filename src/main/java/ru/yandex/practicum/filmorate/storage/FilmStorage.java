@@ -2,20 +2,25 @@ package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface FilmStorage {
 
-    Optional<Film> get(int id);
+    Optional<Film> loadFilm(long id);
 
-    Film add(Film film);
+    long saveFilm(Film film);
 
-    ArrayList<Film> getAll();
+    void updateFilm(Film film);
 
-    void saveScores(int id, Set<Integer> scores);
+    List<Film> loadFilms();
 
-    Optional<Set<Integer>> loadScores(int id);
+    void saveRatingPoint(long filmId, long userId);
+
+    void deleteRatingPoint(long filmId, long userId);
+
+    boolean hasFilmRatingFromUser(long filmId, long userId);
+
+    List<Film> loadPopularFilms(long count);
 
 }
