@@ -98,4 +98,10 @@ public class FilmService {
         log.debug("Return {} popular films", popular.size());
         return popular;
     }
+
+    public void deleteUser(long id){
+        getFilmOrNotFoundException(id);
+        filmStorage.deleteFilm(id);
+        log.debug("Delete  movie #{}", id);
+    }
 }
