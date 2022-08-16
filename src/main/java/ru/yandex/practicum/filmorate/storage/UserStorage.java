@@ -13,6 +13,8 @@ public interface UserStorage {
 
     void updateUser(User user);
 
+    void deleteUser(long id);
+
     List<User> loadUsers();
 
     void saveFriendshipRequest(long userId, long friendId, FriendshipStatus status);

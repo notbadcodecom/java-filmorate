@@ -13,6 +13,8 @@ public interface FilmStorage {
 
     void updateFilm(Film film);
 
+    void deleteFilm(long id);
+
     List<Film> loadFilms();
 
     void saveRatingPoint(long filmId, long userId);
