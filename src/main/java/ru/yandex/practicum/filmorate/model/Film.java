@@ -4,7 +4,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import ru.yandex.practicum.filmorate.validation.*;
 
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -43,4 +42,6 @@ public class Film extends Id {
     Mpa mpa;
 
     List<Genre> genres;
+
+    List<Director> directors;
 }

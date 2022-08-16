@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.GenreService;
 
 import java.sql.Date;
@@ -17,11 +18,13 @@ public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final GenreService genreService;
+    private final DirectorService directorService;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreService genreService){
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreService genreService, DirectorService directorService){
         this.jdbcTemplate = jdbcTemplate;
         this.genreService = genreService;
+        this.directorService = directorService;
     }
 
     @Override
@@ -38,7 +41,7 @@ public class FilmDbStorage implements FilmStorage {
                 "JOIN mpa m" +
                 "    ON m.id = f.mpa_id " +
                 "WHERE f.id = ?;";
-        return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService), id).stream().findAny();
+        return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), id).stream().findAny();
     }
 
     @Override
@@ -83,11 +86,11 @@ public class FilmDbStorage implements FilmStorage {
                         "f.release_date, " +
                         "f.duration, " +
                         "f.mpa_id, " +
-                        "m.name mpa, " +
+                        "m.name mpa " +
                 "FROM films f " +
                 "JOIN mpa m" +
                 "    ON m.id = f.mpa_id;";
-        return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService));
+        return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService));
     }
     @Override
     public void deleteFilm(long id){
@@ -123,7 +126,7 @@ public class FilmDbStorage implements FilmStorage {
                         "f.release_date, " +
                         "f.duration, " +
                         "f.mpa_id, " +
-                        "m.name mpa, " +
+                        "m.name mpa " +
                 "FROM films f " +
                 "JOIN mpa m" +
                 "    ON m.id = f.mpa_id " +
@@ -134,6 +137,52 @@ public class FilmDbStorage implements FilmStorage {
                 ") r ON f.id =  r.film_id " +
                 "ORDER BY r.rating DESC " +
                 "LIMIT ?;";
-        return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService), count);
+        return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), count);
+    }
+
+    @Override
+    public List<Film> loadFilmsOfDirectorSortedByYears(long directorId) {
+        String sqlQuery =
+                "SELECT f.id, " +
+                        "f.name, " +
+                        "f.description, " +
+                        "f.release_date, " +
+                        "f.duration, " +
+                        "f.mpa_id, " +
+                        "m.name mpa, " +
+                        "YEAR(f.release_date) years " +
+                "FROM films f " +
+                "JOIN mpa m" +
+                "    ON m.id = f.mpa_id " +
+                "JOIN films_directors fd " +
+                "    ON fd.film_id = f.id " +
+                "WHERE fd.director_id = ? " +
+                "ORDER BY years ASC;";
+        return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), directorId);
+    }
+
+    @Override
+    public List<Film> loadFilmsOfDirectorSortedByRating(long directorId) {
+        String sqlQuery =
+                "SELECT f.id, " +
+                       "f.name, " +
+                       "f.description, " +
+                       "f.release_date, " +
+                       "f.duration, " +
+                       "f.mpa_id, " +
+                       "m.name mpa " +
+                "FROM films f " +
+                "JOIN mpa m" +
+                "    ON m.id = f.mpa_id " +
+                "JOIN films_directors fd " +
+                "    ON fd.film_id = f.id " +
+                "LEFT JOIN (SELECT film_id, " +
+                "      COUNT(user_id) rating " +
+                "      FROM films_ratings " +
+                "      GROUP BY film_id " +
+                ") r ON f.id =  r.film_id " +
+                "WHERE fd.director_id = ? " +
+                "ORDER BY r.rating ASC;";
+        return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), directorId);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.FilmSortingProperties;
 import ru.yandex.practicum.filmorate.validation.Create;
 import ru.yandex.practicum.filmorate.validation.Update;
 
@@ -69,5 +70,12 @@ public class FilmController {
     @ResponseStatus(HttpStatus.OK)
     public List<Film> getPopular(@RequestParam(required = false, defaultValue = "10") long count) {
         return filmService.getPopular(count);
+    }
+
+    @GetMapping("/director/{directorId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getByDirectorId(@PathVariable long directorId, @RequestParam String sortBy) {
+        FilmSortingProperties property = FilmSortingProperties.valueOf(sortBy.toUpperCase());
+        return filmService.getSortedFilmsOfDirector(directorId, property);
     }
 }
