@@ -18,11 +18,19 @@ public class FilmService {
     private final UserService userService;
     private final GenreService genreService;
 
+    private final DirectorService directorService;
+
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserService userService, GenreService genreService) {
+    public FilmService(
+            FilmStorage filmStorage,
+            UserService userService,
+            GenreService genreService,
+            DirectorService directorService
+    ) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.genreService = genreService;
+        this.directorService = directorService;
     }
 
     public Film getFilmOrNotFoundException(long id) {
@@ -39,6 +47,9 @@ public class FilmService {
         long filmId = filmStorage.saveFilm(film);
         if (film.getGenres() != null && film.getGenres().size() > 0) {
             genreService.addFilmGenres(filmId, film.getGenres());
+        }
+        if (film.getDirectors() != null && film.getDirectors().size() > 0) {
+            directorService.addFilmDirectors(filmId, film.getDirectors());
         }
         Film savedFilm = getFilmOrNotFoundException(filmId);
         log.debug("Create {}", savedFilm);
@@ -58,6 +69,11 @@ public class FilmService {
             genreService.deleteFilmGenres(film.getId());
         } else {
             genreService.updateFilmGenres(film.getId(), film.getGenres());
+        }
+        if (film.getDirectors() == null || film.getDirectors().size() == 0) {
+            directorService.deleteFilmDirectors(film.getId());
+        } else {
+            directorService.updateFilmDirectors(film.getId(), film.getDirectors());
         }
         filmStorage.updateFilm(film);
         Film savedFilm = getFilmOrNotFoundException(film.getId());
@@ -103,5 +119,21 @@ public class FilmService {
         getFilmOrNotFoundException(id);
         filmStorage.deleteFilm(id);
         log.debug("Delete  movie #{}", id);
+    }
+
+    public List<Film> getSortedFilmsOfDirector(long directorId, String sortBy) {
+        directorService.getDirectorOrNotFoundException(directorId);
+        switch (sortBy) {
+            case "YEAR":
+                List<Film> films = filmStorage.loadFilmsOfDirectorSortedByYears(directorId);
+                log.debug("Return {} films sorted by years", films.size());
+                return films;
+            case "LIKES":
+                films = filmStorage.loadFilmsOfDirectorSortedByRating(directorId);
+                log.debug("Return {} films sorted by rating", films.size());
+                return films;
+            default:
+                throw new NotFoundException("Not found sorting property");
+        }
     }
 }
