@@ -46,6 +46,12 @@ public class UserController {
         return userService.update(user);
     }
 
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteUser(@PathVariable long userId){
+        userService.deleteUser(userId);
+    }
+
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
     public void createFriendship(@PathVariable long id, @PathVariable long friendId) {

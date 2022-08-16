@@ -89,6 +89,11 @@ public class FilmDbStorage implements FilmStorage {
                 "    ON m.id = f.mpa_id;";
         return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService));
     }
+    @Override
+    public void deleteFilm(long id){
+        String sqlQuery = "DELETE FROM films WHERE id = ?";
+        jdbcTemplate.update(sqlQuery, id);
+    }
 
     @Override
     public void saveRatingPoint(long filmId, long userId) {

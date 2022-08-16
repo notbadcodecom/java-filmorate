@@ -58,6 +58,11 @@ public class UserDbStorage implements UserStorage {
                 sqlQuery, user.getLogin(), user.getName(), user.getEmail(), user.getBirthday(), user.getId()
         );
     }
+    @Override
+    public void deleteUser(long id){
+        String sqlQuery = "DELETE FROM users where id = ?";
+        jdbcTemplate.update(sqlQuery, id);
+    }
 
     @Override
     public List<User> loadUsers() {
