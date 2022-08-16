@@ -21,7 +21,7 @@ public class FilmDbStorage implements FilmStorage {
     private final DirectorService directorService;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreService genreService, DirectorService directorService) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreService genreService, DirectorService directorService){
         this.jdbcTemplate = jdbcTemplate;
         this.genreService = genreService;
         this.directorService = directorService;
@@ -37,10 +37,10 @@ public class FilmDbStorage implements FilmStorage {
                         "f.duration, " +
                         "f.mpa_id, " +
                         "m.name mpa " +
-                        "FROM films f " +
-                        "JOIN mpa m" +
-                        "    ON m.id = f.mpa_id " +
-                        "WHERE f.id = ?;";
+                "FROM films f " +
+                "JOIN mpa m" +
+                "    ON m.id = f.mpa_id " +
+                "WHERE f.id = ?;";
         return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), id).stream().findAny();
     }
 
@@ -87,14 +87,13 @@ public class FilmDbStorage implements FilmStorage {
                         "f.duration, " +
                         "f.mpa_id, " +
                         "m.name mpa " +
-                        "FROM films f " +
-                        "JOIN mpa m" +
-                        "    ON m.id = f.mpa_id;";
+                "FROM films f " +
+                "JOIN mpa m" +
+                "    ON m.id = f.mpa_id;";
         return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService));
     }
-
     @Override
-    public void deleteFilm(long id) {
+    public void deleteFilm(long id){
         String sqlQuery = "DELETE FROM films WHERE id = ?";
         jdbcTemplate.update(sqlQuery, id);
     }
@@ -128,114 +127,17 @@ public class FilmDbStorage implements FilmStorage {
                         "f.duration, " +
                         "f.mpa_id, " +
                         "m.name mpa " +
-                        "FROM films f " +
-                        "JOIN mpa m" +
-                        "    ON m.id = f.mpa_id " +
-                        "LEFT JOIN (SELECT film_id, " +
-                        "      COUNT(user_id) rating " +
-                        "      FROM films_ratings " +
-                        "      GROUP BY film_id " +
-                        ") r ON f.id =  r.film_id " +
-                        "ORDER BY r.rating DESC " +
-                        "LIMIT ?;";
+                "FROM films f " +
+                "JOIN mpa m" +
+                "    ON m.id = f.mpa_id " +
+                "LEFT JOIN (SELECT film_id, " +
+                "      COUNT(user_id) rating " +
+                "      FROM films_ratings " +
+                "      GROUP BY film_id " +
+                ") r ON f.id =  r.film_id " +
+                "ORDER BY r.rating DESC " +
+                "LIMIT ?;";
         return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), count);
-    }
-
-    @Override
-    public List<Film> loadPopularFilms(long count, long genreId) {
-        String sqlQuery =
-                "SELECT DISTINCT f.id, " +
-                        "f.name, " +
-                        "f.description, " +
-                        "f.release_date, " +
-                        "f.duration, " +
-                        "f.mpa_id, " +
-                        "m.name mpa, " +
-                        "r.rating rate " +
-                        "FROM films_genres fg " +
-                        "JOIN films f " +
-                        "    ON fg.film_id = f.id " +
-                        "JOIN mpa m" +
-                        "    ON m.id = f.mpa_id " +
-                        "LEFT JOIN (SELECT film_id, " +
-                        "      COUNT(user_id) rating " +
-                        "      FROM films_ratings " +
-                        "      GROUP BY film_id " +
-                        ") r ON f.id =  r.film_id " +
-                        "WHERE fg.genre_id = ? " +
-                        "ORDER BY rate DESC " +
-                        "LIMIT ?;";
-        return jdbcTemplate.query(
-                sqlQuery,
-                new FilmRowMapper(genreService, directorService),
-                genreId,
-                count
-        );
-    }
-
-    @Override
-    public List<Film> loadPopularFilms(long count, String year) {
-        String sqlQuery =
-                "SELECT DISTINCT f.id, " +
-                        "f.name, " +
-                        "f.description, " +
-                        "f.release_date, " +
-                        "f.duration, " +
-                        "f.mpa_id, " +
-                        "m.name mpa, " +
-                        "r.rating rate " +
-                        "FROM films_genres fg " +
-                        "JOIN films f " +
-                        "    ON fg.film_id = f.id " +
-                        "JOIN mpa m" +
-                        "    ON m.id = f.mpa_id " +
-                        "LEFT JOIN (SELECT film_id, " +
-                        "      COUNT(user_id) rating " +
-                        "      FROM films_ratings " +
-                        "      GROUP BY film_id " +
-                        ") r ON f.id =  r.film_id " +
-                        "WHERE YEAR(f.release_date) = ? " +
-                        "ORDER BY rate DESC " +
-                        "LIMIT ?;";
-        return jdbcTemplate.query(
-                sqlQuery,
-                new FilmRowMapper(genreService, directorService),
-                year,
-                count
-        );
-    }
-
-    @Override
-    public List<Film> loadPopularFilms(long count, long genreId, String year) {
-        String sqlQuery =
-                "SELECT DISTINCT f.id, " +
-                        "f.name, " +
-                        "f.description, " +
-                        "f.release_date, " +
-                        "f.duration, " +
-                        "f.mpa_id, " +
-                        "m.name mpa, " +
-                        "r.rating rate " +
-                        "FROM films_genres fg " +
-                        "JOIN films f " +
-                        "    ON fg.film_id = f.id " +
-                        "JOIN mpa m" +
-                        "    ON m.id = f.mpa_id " +
-                        "LEFT JOIN (SELECT film_id, " +
-                        "      COUNT(user_id) rating " +
-                        "      FROM films_ratings " +
-                        "      GROUP BY film_id " +
-                        ") r ON f.id =  r.film_id " +
-                        "WHERE YEAR(f.release_date) = ? AND fg.genre_id = ? " +
-                        "ORDER BY rate DESC " +
-                        "LIMIT ?;";
-        return jdbcTemplate.query(
-                sqlQuery,
-                new FilmRowMapper(genreService, directorService),
-                year,
-                genreId,
-                count
-        );
     }
 
     @Override
@@ -249,13 +151,13 @@ public class FilmDbStorage implements FilmStorage {
                         "f.mpa_id, " +
                         "m.name mpa, " +
                         "YEAR(f.release_date) years " +
-                        "FROM films f " +
-                        "JOIN mpa m" +
-                        "    ON m.id = f.mpa_id " +
-                        "JOIN films_directors fd " +
-                        "    ON fd.film_id = f.id " +
-                        "WHERE fd.director_id = ? " +
-                        "ORDER BY years ASC;";
+                "FROM films f " +
+                "JOIN mpa m" +
+                "    ON m.id = f.mpa_id " +
+                "JOIN films_directors fd " +
+                "    ON fd.film_id = f.id " +
+                "WHERE fd.director_id = ? " +
+                "ORDER BY years ASC;";
         return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), directorId);
     }
 
@@ -263,68 +165,24 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> loadFilmsOfDirectorSortedByRating(long directorId) {
         String sqlQuery =
                 "SELECT f.id, " +
-                        "f.name, " +
-                        "f.description, " +
-                        "f.release_date, " +
-                        "f.duration, " +
-                        "f.mpa_id, " +
-                        "m.name mpa " +
-                        "FROM films f " +
-                        "JOIN mpa m" +
-                        "    ON m.id = f.mpa_id " +
-                        "JOIN films_directors fd " +
-                        "    ON fd.film_id = f.id " +
-                        "LEFT JOIN (SELECT film_id, " +
-                        "      COUNT(user_id) rating " +
-                        "      FROM films_ratings " +
-                        "      GROUP BY film_id " +
-                        ") r ON f.id =  r.film_id " +
-                        "WHERE fd.director_id = ? " +
-                        "ORDER BY r.rating ASC;";
+                       "f.name, " +
+                       "f.description, " +
+                       "f.release_date, " +
+                       "f.duration, " +
+                       "f.mpa_id, " +
+                       "m.name mpa " +
+                "FROM films f " +
+                "JOIN mpa m" +
+                "    ON m.id = f.mpa_id " +
+                "JOIN films_directors fd " +
+                "    ON fd.film_id = f.id " +
+                "LEFT JOIN (SELECT film_id, " +
+                "      COUNT(user_id) rating " +
+                "      FROM films_ratings " +
+                "      GROUP BY film_id " +
+                ") r ON f.id =  r.film_id " +
+                "WHERE fd.director_id = ? " +
+                "ORDER BY r.rating ASC;";
         return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), directorId);
-    }
-
-    @Override
-    public List<Film> searchFilmByProperty(String query, String filmSearchProperties) {
-        List<Film> result = new ArrayList<>();
-        if (filmSearchProperties.equals("title")) {
-            String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, f.duration," +
-                    " f.mpa_id, m.name mpa FROM films f" +
-                    " JOIN mpa m ON m.id = f.mpa_id" +
-                    " LEFT JOIN films_directors fd On fd.film_id=f.ID " +
-                    " LEFT JOIN (SELECT film_id, COUNT(user_id) rating " +
-                    "FROM films_ratings GROUP BY film_id) r ON f.id = r.film_id " +
-                    "WHERE LOWER(f.NAME) LIKE '%' || LOWER(?) || '%' ORDER BY r.rating DESC";
-            result = jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), query);
-        } else if (filmSearchProperties.equals("director")) {
-            String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, f.duration," +
-                    " f.mpa_id, m.name mpa FROM films f" +
-                    " JOIN mpa m ON m.id = f.mpa_id" +
-                    " LEFT JOIN films_directors fd On fd.film_id=f.ID " +
-                    " LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
-                    " LEFT JOIN (SELECT film_id, COUNT(user_id) rating " +
-                    "FROM films_ratings GROUP BY film_id) r ON f.id = r.film_id " +
-                    "WHERE LOWER(d.NAME) LIKE '%' || LOWER(?) || '%' ORDER BY r.rating DESC";
-            result = jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), query);
-        } else if (filmSearchProperties.contains("director") && filmSearchProperties.contains("director") &&
-                filmSearchProperties.contains(",")) {
-            String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, f.duration," +
-                    " f.mpa_id, m.name mpa FROM films f" +
-                    " JOIN mpa m ON m.id = f.mpa_id" +
-                    " LEFT JOIN films_directors fd On fd.film_id=f.ID " +
-                    " LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
-                    " LEFT JOIN (SELECT film_id, COUNT(user_id) rating " +
-                    "FROM films_ratings GROUP BY film_id) r ON f.id = r.film_id " +
-                    "WHERE (LOWER(d.NAME) LIKE '%' || LOWER(?) || '%' " +
-                    "OR LOWER(f.NAME) LIKE '%' || LOWER(?) || '%')" +
-                    "ORDER BY r.rating DESC";
-            result = jdbcTemplate.query(con -> {PreparedStatement stmt = con.prepareStatement(sqlQuery);
-            stmt.setString(1, query);
-            stmt.setString(2, query);
-            stmt.executeQuery();
-            return stmt;
-            }, new FilmRowMapper(genreService, directorService));
-        }
-        return result;
     }
 }
