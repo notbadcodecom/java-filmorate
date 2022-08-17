@@ -141,6 +141,103 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> loadPopularFilms(long count, long genreId) {
+        String sqlQuery =
+                "SELECT DISTINCT f.id, " +
+                        "f.name, " +
+                        "f.description, " +
+                        "f.release_date, " +
+                        "f.duration, " +
+                        "f.mpa_id, " +
+                        "m.name mpa, " +
+                        "r.rating rate " +
+                        "FROM films_genres fg " +
+                        "JOIN films f " +
+                        "    ON fg.film_id = f.id " +
+                        "JOIN mpa m" +
+                        "    ON m.id = f.mpa_id " +
+                        "LEFT JOIN (SELECT film_id, " +
+                        "      COUNT(user_id) rating " +
+                        "      FROM films_ratings " +
+                        "      GROUP BY film_id " +
+                        ") r ON f.id =  r.film_id " +
+                        "WHERE fg.genre_id = ? " +
+                        "ORDER BY rate DESC " +
+                        "LIMIT ?;";
+        return jdbcTemplate.query(
+                sqlQuery,
+                new FilmRowMapper(genreService, directorService),
+                genreId,
+                count
+        );
+    }
+
+    @Override
+    public List<Film> loadPopularFilms(long count, String year) {
+        String sqlQuery =
+                "SELECT DISTINCT f.id, " +
+                        "f.name, " +
+                        "f.description, " +
+                        "f.release_date, " +
+                        "f.duration, " +
+                        "f.mpa_id, " +
+                        "m.name mpa, " +
+                        "r.rating rate " +
+                        "FROM films_genres fg " +
+                        "JOIN films f " +
+                        "    ON fg.film_id = f.id " +
+                        "JOIN mpa m" +
+                        "    ON m.id = f.mpa_id " +
+                        "LEFT JOIN (SELECT film_id, " +
+                        "      COUNT(user_id) rating " +
+                        "      FROM films_ratings " +
+                        "      GROUP BY film_id " +
+                        ") r ON f.id =  r.film_id " +
+                        "WHERE YEAR(f.release_date) = ? " +
+                        "ORDER BY rate DESC " +
+                        "LIMIT ?;";
+        return jdbcTemplate.query(
+                sqlQuery,
+                new FilmRowMapper(genreService, directorService),
+                year,
+                count
+        );
+    }
+
+    @Override
+    public List<Film> loadPopularFilms(long count, long genreId, String year) {
+        String sqlQuery =
+                "SELECT DISTINCT f.id, " +
+                        "f.name, " +
+                        "f.description, " +
+                        "f.release_date, " +
+                        "f.duration, " +
+                        "f.mpa_id, " +
+                        "m.name mpa, " +
+                        "r.rating rate " +
+                        "FROM films_genres fg " +
+                        "JOIN films f " +
+                        "    ON fg.film_id = f.id " +
+                        "JOIN mpa m" +
+                        "    ON m.id = f.mpa_id " +
+                        "LEFT JOIN (SELECT film_id, " +
+                        "      COUNT(user_id) rating " +
+                        "      FROM films_ratings " +
+                        "      GROUP BY film_id " +
+                        ") r ON f.id =  r.film_id " +
+                        "WHERE YEAR(f.release_date) = ? AND fg.genre_id = ? " +
+                        "ORDER BY rate DESC " +
+                        "LIMIT ?;";
+        return jdbcTemplate.query(
+                sqlQuery,
+                new FilmRowMapper(genreService, directorService),
+                year,
+                genreId,
+                count
+        );
+    }
+
+    @Override
     public List<Film> loadFilmsOfDirectorSortedByYears(long directorId) {
         String sqlQuery =
                 "SELECT f.id, " +
