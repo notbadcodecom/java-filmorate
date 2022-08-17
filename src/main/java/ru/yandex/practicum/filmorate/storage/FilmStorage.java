@@ -25,4 +25,7 @@ public interface FilmStorage {
 
     List<Film> loadPopularFilms(long count);
 
+    List<Film> loadFilmsOfDirectorSortedByYears(long directorId);
+
+    List<Film> loadFilmsOfDirectorSortedByRating(long directorId);
 }
