@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FriendshipStatus;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,10 +16,11 @@ import java.util.Optional;
 public class UserService {
 
     private final UserStorage userStorage;
-
+    private final EventService eventService;
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, EventService eventService) {
         this.userStorage = userStorage;
+        this.eventService = eventService;
     }
 
     public User getUserOrNotFoundException(long id) {
@@ -66,6 +67,8 @@ public class UserService {
         } else {
             userStorage.saveFriendshipRequest(userId, friendId, FriendshipStatus.REQUEST);
             log.debug("Creating friendship request for user #{} from user #{}",  userId, friendId);
+            eventService.saveEvent(userId, friendId, EventType.FRIEND, EventOperation.ADD);
+            log.debug("Saving event: creating friendship request for user #{} from user #{}",  userId, friendId);
         }
     }
 
@@ -78,6 +81,7 @@ public class UserService {
             log.debug("User #{} confirmed friendship request of user #{}", userId, friendId);
         } else if (userStorage.isExistFriendship(friendId, userId)) {
             userStorage.updateFriendshipStatus(friendId, userId, FriendshipStatus.ACCEPTED);
+            eventService.saveEvent(userId, friendId, EventType.FRIEND, EventOperation.ADD);
             log.debug("User #{} confirmed friendship request of user #{}", userId, friendId);
         } else {
             log.debug("Attempt to confirm a non-existent request from user #{} to user #{}", friendId, userId);
@@ -90,6 +94,8 @@ public class UserService {
         if (userStorage.isExistFriendship(userId, friendId)) {
             userStorage.deleteFriendshipRequest(userId, friendId);
             log.debug("User #{} refused friendship request from user #{}", userId, friendId);
+            eventService.saveEvent(userId, friendId, EventType.FRIEND, EventOperation.REMOVE);
+            log.debug("Saving event: user #{} refused friendship request from user #{}", userId, friendId);
         } else {
             log.debug("Attempt to refuse a non-existent request from user #{} to user #{}", friendId, userId);
         }
@@ -122,5 +128,9 @@ public class UserService {
         userStorage.deleteUser(id);
         log.debug("Delete user #{} ",  id);
 
+    }
+
+    public List<Event> getEvents(long id) {
+        return eventService.getEvents(id);
     }
 }
