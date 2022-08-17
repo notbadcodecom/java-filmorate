@@ -12,3 +12,7 @@ MERGE INTO genres (id, name)
            (4, 'Фантастика'),
            (5, 'Триллер'),
            (6, 'Боевик');
+
+MERGE INTO REACTIONS (REACTION_ID, NAME, MARK)
+    VALUES (1, 'DISLIKE', -1),
+           (2, 'LIKE', 1);

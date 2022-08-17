@@ -63,3 +63,28 @@ CREATE TABLE IF NOT EXISTS films_directors (
     director_id BIGINT REFERENCES directors (id) ON DELETE CASCADE,
     UNIQUE  (film_id, director_id)
 );
+
+CREATE TABLE IF NOT EXISTS reviews
+(
+    review_id   bigint AUTO_INCREMENT PRIMARY KEY,
+    content     varchar(400),
+    is_positive bool,
+    user_id     int REFERENCES users (id) ON DELETE CASCADE,
+    film_id     int REFERENCES films (id) ON DELETE CASCADE,
+    useful      int DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS reactions
+(
+    reaction_id int AUTO_INCREMENT PRIMARY KEY,
+    name        varchar(100),
+    mark        int
+);
+
+CREATE TABLE IF NOT EXISTS reviews_reactions
+(
+    review_id   bigint REFERENCES reviews (review_id) on delete cascade ,
+    user_id     bigint REFERENCES users (id) ON DELETE CASCADE,
+    reaction_id int REFERENCES reactions (reaction_id),
+    PRIMARY KEY (review_id, user_id)
+);
