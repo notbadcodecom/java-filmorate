@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.validation.Create;
 import ru.yandex.practicum.filmorate.validation.Update;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")
@@ -67,8 +68,12 @@ public class FilmController {
 
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
-    public List<Film> getPopular(@RequestParam(required = false, defaultValue = "10") long count) {
-        return filmService.getPopular(count);
+    public List<Film> getPopular(
+            @RequestParam(required = false, defaultValue = "10") long count,
+            @RequestParam Optional<Long> genreId,
+            @RequestParam Optional<String> year
+    ) {
+        return filmService.getPopular(count, genreId, year);
     }
 
     @GetMapping("/director/{directorId}")
