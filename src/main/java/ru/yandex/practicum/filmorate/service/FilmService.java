@@ -121,14 +121,14 @@ public class FilmService {
         log.debug("Delete  movie #{}", id);
     }
 
-    public List<Film> getSortedFilmsOfDirector(long directorId, FilmSortingProperties sortBy) {
+    public List<Film> getSortedFilmsOfDirector(long directorId, String sortBy) {
         directorService.getDirectorOrNotFoundException(directorId);
         switch (sortBy) {
-            case YEAR:
+            case "YEAR":
                 List<Film> films = filmStorage.loadFilmsOfDirectorSortedByYears(directorId);
                 log.debug("Return {} films sorted by years", films.size());
                 return films;
-            case LIKES:
+            case "LIKES":
                 films = filmStorage.loadFilmsOfDirectorSortedByRating(directorId);
                 log.debug("Return {} films sorted by rating", films.size());
                 return films;
