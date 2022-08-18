@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 

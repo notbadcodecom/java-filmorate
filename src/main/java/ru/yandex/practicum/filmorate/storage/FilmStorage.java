@@ -28,4 +28,6 @@ public interface FilmStorage {
     List<Film> loadFilmsOfDirectorSortedByYears(long directorId);
 
     List<Film> loadFilmsOfDirectorSortedByRating(long directorId);
+
+    List<Film> searchFilmByProperty(String query, String filmSearchProperties);
 }
