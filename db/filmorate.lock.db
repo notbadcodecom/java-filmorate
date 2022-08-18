@@ -1,4 +1,6 @@
 #FileLock
-#Wed Aug 17 13:02:20 UTC 2022
+#Thu Aug 18 07:43:40 UTC 2022
+server=192.168.8.147\:65066
+hostName=DESKTOP-5CPVMTM
 method=file
-id=182abe5cf15db752e44be6c38eebbac8c650f3241e4
+id=182afe86186e2da780b589e13fe969c44e1fcc86483

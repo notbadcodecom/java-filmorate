@@ -5,8 +5,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.storage.EventOperation;
 import ru.yandex.practicum.filmorate.storage.EventType;
 
-import java.time.LocalDateTime;
-
 @Setter
 @Getter
 @ToString
@@ -16,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 public class Event {
     private long eventId;
-    private LocalDateTime timeStamp;
+    private Long timestamp;
     private long userId;
     private EventType eventType;
     private EventOperation operation;

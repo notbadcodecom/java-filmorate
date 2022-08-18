@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Repository("eventStorage")
-public class EventStorageDb implements EventStorage{
+public class EventStorageDb implements EventStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -34,7 +34,7 @@ public class EventStorageDb implements EventStorage{
     private Event mapRowToEvent(ResultSet resultSet, int rowNum) throws SQLException {
         return Event.builder()
                 .eventId(resultSet.getLong("EVENT_ID"))
-                .timeStamp(resultSet.getTimestamp("TIMESTAMP").toLocalDateTime())
+                .timestamp(resultSet.getTimestamp("TIMESTAMP").getTime())
                 .userId(resultSet.getLong("USER_ID"))
                 .eventType(EventType.valueOf(resultSet.getString("EVENT_TYPE")))
                 .operation(EventOperation.valueOf(resultSet.getString("OPERATION")))
