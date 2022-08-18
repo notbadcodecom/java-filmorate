@@ -11,7 +11,10 @@ import ru.yandex.practicum.filmorate.service.GenreService;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Repository("filmStorage")
 public class FilmDbStorage implements FilmStorage {
@@ -116,6 +119,37 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "SELECT COUNT(user_id) FROM films_ratings WHERE film_id = ? AND user_id = ?;";
         int rating = jdbcTemplate.queryForObject(sqlQuery, Integer.class, filmId, userId);
         return rating > 0;
+    }
+
+    @Override
+    public List<Film> getUsersCommonFilms(long userId, long friendId) {
+        String sqlQuery =
+                "SELECT FIL.id," +
+                        " FIL.name," +
+                        " FIL.description," +
+                        " FIL.release_date," +
+                        " FIL.duration," +
+                        " FIL.mpa_id," +
+                        " m.name mpa " +
+                        " FROM (SELECT f.ID," +
+                        " f.NAME," +
+                        " f.DESCRIPTION," +
+                        " f.RELEASE_DATE," +
+                        " f.DURATION," +
+                        " f.MPA_ID " +
+                        " FROM FILMS f," +
+                        " FILMS_RATINGS fr," +
+                        " FILMS_RATINGS o " +
+                        " WHERE f.ID = fr.FILM_ID" +
+                        " AND f.ID = o.FILM_ID AND" +
+                        " fr.USER_ID = ? " +
+                        "and o.USER_ID = ?) fil " +
+                        "JOIN MPA m ON m.ID = fil.MPA_ID" +
+                        " LEFT JOIN (SELECT FILM_ID, count(USER_ID)" +
+                        " rating FROM FILMS_RATINGS " +
+                        "GROUP BY FILM_ID) r ON FIL.ID = r.FILM_ID " +
+                        "ORDER BY r.rating DESC";
+        return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), userId, friendId);
     }
 
     @Override
@@ -318,11 +352,12 @@ public class FilmDbStorage implements FilmStorage {
                     "WHERE (LOWER(d.NAME) LIKE '%' || LOWER(?) || '%' " +
                     "OR LOWER(f.NAME) LIKE '%' || LOWER(?) || '%')" +
                     "ORDER BY r.rating DESC";
-            result = jdbcTemplate.query(con -> {PreparedStatement stmt = con.prepareStatement(sqlQuery);
-            stmt.setString(1, query);
-            stmt.setString(2, query);
-            stmt.executeQuery();
-            return stmt;
+            result = jdbcTemplate.query(con -> {
+                PreparedStatement stmt = con.prepareStatement(sqlQuery);
+                stmt.setString(1, query);
+                stmt.setString(2, query);
+                stmt.executeQuery();
+                return stmt;
             }, new FilmRowMapper(genreService, directorService));
         }
         return result;

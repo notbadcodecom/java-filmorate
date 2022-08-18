@@ -23,6 +23,7 @@ public class ReviewDbStorage implements ReviewStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+
     private Review mapRowToObject(ResultSet rs, int rowNum) throws SQLException {
         return Review.builder().
                 reviewId(rs.getLong("review_id"))
