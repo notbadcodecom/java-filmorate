@@ -80,10 +80,6 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update(sqlQuery, userId, friendId, status.name());
     }
 
-
-
-
-
     @Override
     public boolean isExistFriendship(long userId, long friendId) {
         String sqlQuery = "SELECT COUNT(user_id) FROM friends WHERE user_id = ? AND friend_id = ?;";
