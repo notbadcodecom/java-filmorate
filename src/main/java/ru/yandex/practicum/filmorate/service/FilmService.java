@@ -146,4 +146,10 @@ public class FilmService {
                 throw new NotFoundException("Not found sorting property");
         }
     }
+
+    public List<Film> searchFilmByProperty(String query, String filmSearchProperties) {
+        List<Film> foundFilmList = filmStorage.searchFilmByProperty(query, filmSearchProperties);
+        log.debug("Return film list found by keyword {} and tag {}", query, filmSearchProperties);
+        return foundFilmList;
+    }
 }
