@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -109,8 +110,17 @@ public class FilmService {
         }
     }
 
-    public List<Film> getPopular(long count) {
-        List<Film> popular = filmStorage.loadPopularFilms(count);
+    public List<Film> getPopular(long count, Optional<Long> genreId, Optional<String> year) {
+        List<Film> popular;
+        if (genreId.isPresent() && year.isPresent()) {
+            popular = filmStorage.loadPopularFilms(count, genreId.get(), year.get());
+        } else if (genreId.isPresent()) {
+            popular = filmStorage.loadPopularFilms(count, genreId.get());
+        } else if (year.isPresent()) {
+            popular = filmStorage.loadPopularFilms(count, year.get());
+        } else {
+            popular = filmStorage.loadPopularFilms(count);
+        }
         log.debug("Return {} popular films", popular.size());
         return popular;
     }
