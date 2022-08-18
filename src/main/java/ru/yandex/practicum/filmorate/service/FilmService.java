@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.EventOperation;
+import ru.yandex.practicum.filmorate.storage.EventStorage;
+import ru.yandex.practicum.filmorate.storage.EventType;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.*;
@@ -18,20 +21,23 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
     private final GenreService genreService;
+    private final EventService eventService;
 
     private final DirectorService directorService;
 
     @Autowired
     public FilmService(
-            FilmStorage filmStorage,
-            UserService userService,
-            GenreService genreService,
-            DirectorService directorService
+           FilmStorage filmStorage,
+           UserService userService,
+           GenreService genreService,
+           DirectorService directorService,
+           EventService eventService
     ) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.genreService = genreService;
         this.directorService = directorService;
+        this.eventService = eventService;
     }
 
     public Film getFilmOrNotFoundException(long id) {
@@ -96,6 +102,8 @@ public class FilmService {
         } else {
             filmStorage.saveRatingPoint(filmId, userId);
             log.debug("Creating rating point for movie #{} from user #{}",  filmId, userId);
+            eventService.saveEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
+            log.debug("Saving event: creating rating point for movie #{} from user #{}",  filmId, userId);
         }
     }
 
@@ -105,6 +113,8 @@ public class FilmService {
         if (filmStorage.hasFilmRatingFromUser(filmId, userId)) {
             filmStorage.deleteRatingPoint(filmId, userId);
             log.debug("Delete rating point of movie #{} from user #{}",  filmId, userId);
+            eventService.saveEvent(userId, filmId, EventType.LIKE, EventOperation.REMOVE);
+            log.debug("Saving event: delete rating point of movie #{} from user #{}",  filmId, userId);
         } else {
             log.debug("Attempt to delete a non-existent rating point for movie #{} from user #{}", filmId, userId);
         }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validation.Create;
@@ -68,6 +69,12 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void refuseFriendship(@PathVariable long id, @PathVariable long friendId) {
         userService.refuseFriendship(id, friendId);
+    }
+
+    @GetMapping("/{id}/feed")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Event> getEvents(@PathVariable long id) {
+        return userService.getEvents(id);
     }
 
     @GetMapping("/{id}/friends")
