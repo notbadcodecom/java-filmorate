@@ -21,15 +21,16 @@ public class FilmService {
     private final UserService userService;
     private final GenreService genreService;
     private final EventService eventService;
+
     private final DirectorService directorService;
 
     @Autowired
     public FilmService(
-            FilmStorage filmStorage,
-            UserService userService,
-            GenreService genreService,
-            DirectorService directorService,
-            Service eventService
+           FilmStorage filmStorage,
+           UserService userService,
+           GenreService genreService,
+           DirectorService directorService,
+           EventService eventService
     ) {
         this.filmStorage = filmStorage;
         this.userService = userService;

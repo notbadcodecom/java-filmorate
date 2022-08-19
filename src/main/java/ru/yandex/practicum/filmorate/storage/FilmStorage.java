@@ -35,5 +35,12 @@ public interface FilmStorage {
 
     List<Film> loadPopularFilms(long count, long genreId, String year);
 
+    List<Film> loadFilmsOfDirectorSortedByYears(long directorId);
+
+    List<Film> loadFilmsOfDirectorSortedByRating(long directorId);
+
     List<Film> searchFilmByProperty(String query, String filmSearchProperties);
+
+    Map<Integer, Set<Integer>> getUserLikes();
+
 }
