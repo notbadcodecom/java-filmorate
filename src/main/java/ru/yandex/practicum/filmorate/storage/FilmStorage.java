@@ -25,6 +25,8 @@ public interface FilmStorage {
 
     boolean hasFilmRatingFromUser(long filmId, long userId);
 
+    List<Film> getUsersCommonFilms(long userId, long friendId);
+
     List<Film> loadPopularFilms(long count);
 
     List<Film> loadPopularFilms(long count, long genreId);

@@ -118,6 +118,37 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getUsersCommonFilms(long userId, long friendId) {
+        String sqlQuery =
+                "SELECT FIL.id," +
+                        " FIL.name," +
+                        " FIL.description," +
+                        " FIL.release_date," +
+                        " FIL.duration," +
+                        " FIL.mpa_id," +
+                        " m.name mpa " +
+                        " FROM (SELECT f.ID," +
+                        " f.NAME," +
+                        " f.DESCRIPTION," +
+                        " f.RELEASE_DATE," +
+                        " f.DURATION," +
+                        " f.MPA_ID " +
+                        " FROM FILMS f," +
+                        " FILMS_RATINGS fr," +
+                        " FILMS_RATINGS o " +
+                        " WHERE f.ID = fr.FILM_ID" +
+                        " AND f.ID = o.FILM_ID AND" +
+                        " fr.USER_ID = ? " +
+                        "and o.USER_ID = ?) fil " +
+                        "JOIN MPA m ON m.ID = fil.MPA_ID" +
+                        " LEFT JOIN (SELECT FILM_ID, count(USER_ID)" +
+                        " rating FROM FILMS_RATINGS " +
+                        "GROUP BY FILM_ID) r ON FIL.ID = r.FILM_ID " +
+                        "ORDER BY r.rating DESC";
+        return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), userId, friendId);
+    }
+
+    @Override
     public List<Film> loadPopularFilms(long count) {
         String sqlQuery =
                 "SELECT f.id, " +
