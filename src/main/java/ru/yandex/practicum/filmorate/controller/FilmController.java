@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.validation.Create;
@@ -49,7 +50,7 @@ public class FilmController {
 
     @DeleteMapping("/{filmId}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteFilm(@PathVariable long filmId) {
+    public void deleteFilm(@PathVariable long filmId){
         filmService.deleteUser(filmId);
     }
 
@@ -63,13 +64,6 @@ public class FilmController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRatingPoint(@PathVariable long id, @PathVariable long userId) {
         filmService.deleteRatingPoint(id, userId);
-    }
-
-    @GetMapping("/common")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Film> getUsersCommonFilms(@RequestParam(name = "userId") long userId,
-                                          @RequestParam(name = "friendId") long friendId) {
-        return filmService.getUsersCommonFilms(userId, friendId);
     }
 
     @GetMapping("/popular")
