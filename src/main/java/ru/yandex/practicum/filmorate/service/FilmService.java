@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.EventOperation;
-import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.EventType;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
@@ -21,7 +20,6 @@ public class FilmService {
     private final UserService userService;
     private final GenreService genreService;
     private final EventService eventService;
-
     private final DirectorService directorService;
 
     @Autowired
