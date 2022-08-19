@@ -76,6 +76,7 @@ public class UserService {
         getUserOrNotFoundException(userId);
         getUserOrNotFoundException(friendId);
         if (userStorage.isExistFriendship(userId, friendId)) {
+            eventService.saveEvent(userId, friendId, EventType.FRIEND, EventOperation.REMOVE);
             userStorage.updateFriendshipStatus(userId, friendId, FriendshipStatus.ACCEPTED);
             userStorage.deleteFriendshipRequest(friendId, userId);
             log.debug("User #{} confirmed friendship request of user #{}", userId, friendId);
@@ -123,11 +124,10 @@ public class UserService {
         return userStorage.isNotExistLogin(login);
     }
 
-    public void deleteUser(long id){
+    public void deleteUser(long id) {
         getUserOrNotFoundException(id);
         userStorage.deleteUser(id);
         log.debug("Delete user #{} ",  id);
-
     }
 
     public List<Event> getEvents(long id) {

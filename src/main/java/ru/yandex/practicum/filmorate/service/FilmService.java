@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.EventOperation;
-import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.EventType;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
@@ -21,7 +20,6 @@ public class FilmService {
     private final UserService userService;
     private final GenreService genreService;
     private final EventService eventService;
-
     private final DirectorService directorService;
 
     @Autowired
@@ -102,13 +100,13 @@ public class FilmService {
     public void addRatingPoint(long filmId, long userId) {
         getFilmOrNotFoundException(filmId);
         userService.getUserOrNotFoundException(userId);
+        eventService.saveEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
+        log.debug("Saving event: creating rating point for movie #{} from user #{}",  filmId, userId);
         if (filmStorage.hasFilmRatingFromUser(filmId, userId)) {
             log.debug("Attempt to create an existing rating point for movie #{} from user #{}",  filmId, userId);
         } else {
             filmStorage.saveRatingPoint(filmId, userId);
             log.debug("Creating rating point for movie #{} from user #{}",  filmId, userId);
-            eventService.saveEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
-            log.debug("Saving event: creating rating point for movie #{} from user #{}",  filmId, userId);
         }
     }
 

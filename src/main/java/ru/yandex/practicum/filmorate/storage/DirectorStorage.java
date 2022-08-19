@@ -13,6 +13,5 @@ public interface DirectorStorage {
     void deleteDirector(long id);
     List<Director> loadDirectorsByFilmId(long id);
     void saveDirectorsToFilm(long id, List<Director> directors);
-
     void deleteDirectorsOfFilm(long id);
 }
