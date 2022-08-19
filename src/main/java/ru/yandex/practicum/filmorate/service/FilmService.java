@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.EventOperation;
@@ -91,6 +90,12 @@ public class FilmService {
         List<Film> films = filmStorage.loadFilms();
         log.debug("Load {} movies", films.size());
         return films;
+    }
+
+    public List<Film> getUsersCommonFilms(long userId, long friendId) {
+        List<Film> usersCommonFilms = filmStorage.getUsersCommonFilms(userId, friendId);
+        log.debug("Return common films list for users {} and {}", userId, friendId);
+        return usersCommonFilms;
     }
 
     public void addRatingPoint(long filmId, long userId) {

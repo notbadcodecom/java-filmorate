@@ -66,6 +66,13 @@ public class FilmController {
         filmService.deleteRatingPoint(id, userId);
     }
 
+    @GetMapping("/common")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getUsersCommonFilms(@RequestParam(name = "userId") long userId,
+                                          @RequestParam(name = "friendId") long friendId) {
+        return filmService.getUsersCommonFilms(userId, friendId);
+    }
+
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
     public List<Film> getPopular(
