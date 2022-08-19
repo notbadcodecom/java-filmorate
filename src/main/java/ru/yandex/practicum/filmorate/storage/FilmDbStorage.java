@@ -21,7 +21,7 @@ public class FilmDbStorage implements FilmStorage {
     private final DirectorService directorService;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreService genreService, DirectorService directorService) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreService genreService, DirectorService directorService){
         this.jdbcTemplate = jdbcTemplate;
         this.genreService = genreService;
         this.directorService = directorService;
@@ -37,10 +37,10 @@ public class FilmDbStorage implements FilmStorage {
                         "f.duration, " +
                         "f.mpa_id, " +
                         "m.name mpa " +
-                        "FROM films f " +
-                        "JOIN mpa m" +
-                        "    ON m.id = f.mpa_id " +
-                        "WHERE f.id = ?;";
+                "FROM films f " +
+                "JOIN mpa m" +
+                "    ON m.id = f.mpa_id " +
+                "WHERE f.id = ?;";
         return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), id).stream().findAny();
     }
 
@@ -87,14 +87,13 @@ public class FilmDbStorage implements FilmStorage {
                         "f.duration, " +
                         "f.mpa_id, " +
                         "m.name mpa " +
-                        "FROM films f " +
-                        "JOIN mpa m" +
-                        "    ON m.id = f.mpa_id;";
+                "FROM films f " +
+                "JOIN mpa m" +
+                "    ON m.id = f.mpa_id;";
         return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService));
     }
-
     @Override
-    public void deleteFilm(long id) {
+    public void deleteFilm(long id){
         String sqlQuery = "DELETE FROM films WHERE id = ?";
         jdbcTemplate.update(sqlQuery, id);
     }
@@ -128,16 +127,16 @@ public class FilmDbStorage implements FilmStorage {
                         "f.duration, " +
                         "f.mpa_id, " +
                         "m.name mpa " +
-                        "FROM films f " +
-                        "JOIN mpa m" +
-                        "    ON m.id = f.mpa_id " +
-                        "LEFT JOIN (SELECT film_id, " +
-                        "      COUNT(user_id) rating " +
-                        "      FROM films_ratings " +
-                        "      GROUP BY film_id " +
-                        ") r ON f.id =  r.film_id " +
-                        "ORDER BY r.rating DESC " +
-                        "LIMIT ?;";
+                "FROM films f " +
+                "JOIN mpa m" +
+                "    ON m.id = f.mpa_id " +
+                "LEFT JOIN (SELECT film_id, " +
+                "      COUNT(user_id) rating " +
+                "      FROM films_ratings " +
+                "      GROUP BY film_id " +
+                ") r ON f.id =  r.film_id " +
+                "ORDER BY r.rating DESC " +
+                "LIMIT ?;";
         return jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), count);
     }
 
@@ -319,12 +318,26 @@ public class FilmDbStorage implements FilmStorage {
                     "OR LOWER(f.NAME) LIKE '%' || LOWER(?) || '%')" +
                     "ORDER BY r.rating DESC";
             result = jdbcTemplate.query(con -> {PreparedStatement stmt = con.prepareStatement(sqlQuery);
-            stmt.setString(1, query);
-            stmt.setString(2, query);
-            stmt.executeQuery();
-            return stmt;
+                stmt.setString(1, query);
+                stmt.setString(2, query);
+                stmt.executeQuery();
+                return stmt;
             }, new FilmRowMapper(genreService, directorService));
         }
         return result;
+    }
+    @Override
+    public Map<Integer, Set<Integer>> getUserLikes() {
+        String sql = "SELECT user_id, film_id FROM films_ratings";
+        Map<Integer, Set<Integer>> likes = new HashMap<>();
+        jdbcTemplate.query(sql, (rs) -> {
+            Integer userId = rs.getInt("user_id");
+            Integer filmId = rs.getInt("film_id");
+            likes.merge(userId, new HashSet<>(Set.of(filmId)), (oldValue, newValue) -> {
+                oldValue.add(filmId);
+                return oldValue;
+            });
+        });
+        return likes;
     }
 }
