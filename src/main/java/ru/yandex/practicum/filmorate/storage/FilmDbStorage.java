@@ -119,28 +119,30 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getUsersCommonFilms(long userId, long friendId) {
-        String sqlQuery =
+         String sqlQuery =
                 "SELECT FIL.id," +
                         " FIL.name," +
                         " FIL.description," +
                         " FIL.release_date," +
                         " FIL.duration," +
                         " FIL.mpa_id," +
-                        " m.name mpa " +
+                        " FIL.mpa " +
                         " FROM (SELECT f.ID," +
                         " f.NAME," +
                         " f.DESCRIPTION," +
                         " f.RELEASE_DATE," +
                         " f.DURATION," +
-                        " f.MPA_ID " +
+                        " f.MPA_ID, " +
+                        " m.name mpa" +
                         " FROM FILMS f," +
                         " FILMS_RATINGS fr," +
                         " FILMS_RATINGS o " +
+                        " JOIN MPA m ON m.ID = f.MPA_ID " +
                         " WHERE f.ID = fr.FILM_ID" +
                         " AND f.ID = o.FILM_ID AND" +
                         " fr.USER_ID = ? " +
-                        "and o.USER_ID = ?) fil " +
-                        "JOIN MPA m ON m.ID = fil.MPA_ID" +
+                        "and o.USER_ID = ? " +
+                        ") fil " +
                         " LEFT JOIN (SELECT FILM_ID, count(USER_ID)" +
                         " rating FROM FILMS_RATINGS " +
                         "GROUP BY FILM_ID) r ON FIL.ID = r.FILM_ID " +
@@ -315,29 +317,9 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> searchFilmByProperty(String query, String filmSearchProperties) {
+    public List<Film> searchFilmByProperty(String query, Set<FilmSearchBy> filmSearchProperties) {
         List<Film> result = new ArrayList<>();
-        if (filmSearchProperties.equals("title")) {
-            String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, f.duration," +
-                    " f.mpa_id, m.name mpa FROM films f" +
-                    " JOIN mpa m ON m.id = f.mpa_id" +
-                    " LEFT JOIN films_directors fd On fd.film_id=f.ID " +
-                    " LEFT JOIN (SELECT film_id, COUNT(user_id) rating " +
-                    "FROM films_ratings GROUP BY film_id) r ON f.id = r.film_id " +
-                    "WHERE LOWER(f.NAME) LIKE '%' || LOWER(?) || '%' ORDER BY r.rating DESC";
-            result = jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), query);
-        } else if (filmSearchProperties.equals("director")) {
-            String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, f.duration," +
-                    " f.mpa_id, m.name mpa FROM films f" +
-                    " JOIN mpa m ON m.id = f.mpa_id" +
-                    " LEFT JOIN films_directors fd On fd.film_id=f.ID " +
-                    " LEFT JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
-                    " LEFT JOIN (SELECT film_id, COUNT(user_id) rating " +
-                    "FROM films_ratings GROUP BY film_id) r ON f.id = r.film_id " +
-                    "WHERE LOWER(d.NAME) LIKE '%' || LOWER(?) || '%' ORDER BY r.rating DESC";
-            result = jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), query);
-        } else if (filmSearchProperties.contains("director") && filmSearchProperties.contains("director") &&
-                filmSearchProperties.contains(",")) {
+        if (filmSearchProperties.contains(FilmSearchBy.TITLE) && filmSearchProperties.contains(FilmSearchBy.DIRECTOR)) {
             String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, f.duration," +
                     " f.mpa_id, m.name mpa FROM films f" +
                     " JOIN mpa m ON m.id = f.mpa_id" +
@@ -354,9 +336,29 @@ public class FilmDbStorage implements FilmStorage {
                 stmt.executeQuery();
                 return stmt;
             }, new FilmRowMapper(genreService, directorService));
+        } else if (filmSearchProperties.contains(FilmSearchBy.TITLE)) {
+            String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, f.duration," +
+                    " f.mpa_id, m.name mpa FROM films f" +
+                    " JOIN mpa m ON m.id = f.mpa_id" +
+                    " LEFT JOIN films_directors fd On fd.film_id=f.ID " +
+                    " LEFT JOIN (SELECT film_id, COUNT(user_id) rating " +
+                    "FROM films_ratings GROUP BY film_id) r ON f.id = r.film_id " +
+                    "WHERE LOWER(f.NAME) LIKE '%' || LOWER(?) || '%' ORDER BY r.rating DESC";
+            result = jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), query);
+        } else if (filmSearchProperties.contains(FilmSearchBy.DIRECTOR)) {
+            String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, f.duration," +
+                    " f.mpa_id, m.name mpa FROM films f" +
+                    " JOIN mpa m ON m.id = f.mpa_id" +
+                    " LEFT JOIN films_directors fd On fd.film_id=f.ID " +
+                    " JOIN DIRECTORS d on fd.DIRECTOR_ID = d.ID " +
+                    " LEFT JOIN (SELECT film_id, COUNT(user_id) rating " +
+                    "FROM films_ratings GROUP BY film_id) r ON f.id = r.film_id " +
+                    "WHERE LOWER(d.NAME) LIKE '%' || LOWER(?) || '%' ORDER BY r.rating DESC";
+            result = jdbcTemplate.query(sqlQuery, new FilmRowMapper(genreService, directorService), query);
         }
         return result;
     }
+
     @Override
     public Map<Integer, Set<Integer>> getUserLikes() {
         String sql = "SELECT user_id, film_id FROM films_ratings";

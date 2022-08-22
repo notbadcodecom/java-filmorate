@@ -39,7 +39,7 @@ public class DirectorDBStorage implements DirectorStorage {
     }
 
     @Override
-    public long saveDirector(Director director) {
+    public Director saveDirector(Director director) {
         String sqlQuery = "INSERT INTO directors (name) VALUES (?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -47,7 +47,8 @@ public class DirectorDBStorage implements DirectorStorage {
             statement.setString(1, director.getName());
             return statement;
         }, keyHolder);
-        return Objects.requireNonNull(keyHolder.getKey()).longValue();
+        director.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        return director;
     }
 
     @Override

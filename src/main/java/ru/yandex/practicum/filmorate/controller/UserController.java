@@ -29,7 +29,7 @@ public class UserController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<User> get() {
+    public List<User> getAll() {
         return userService.getAllUsers();
     }
 

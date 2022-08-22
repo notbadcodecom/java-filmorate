@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface DirectorStorage {
     List<Director> getAllDirectors();
     Optional<Director> loadDirector(long id);
-    long saveDirector(Director director);
+    Director saveDirector(Director director);
     void updateDirector(Director director);
     void deleteDirector(long id);
     List<Director> loadDirectorsByFilmId(long id);

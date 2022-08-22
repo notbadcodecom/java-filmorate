@@ -39,7 +39,7 @@ public interface FilmStorage {
 
     List<Film> loadFilmsOfDirectorSortedByRating(long directorId);
 
-    List<Film> searchFilmByProperty(String query, String filmSearchProperties);
+    List<Film> searchFilmByProperty(String query, Set<FilmSearchBy> filmSearchProperties);
 
     Map<Integer, Set<Integer>> getUserLikes();
 

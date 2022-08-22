@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -8,6 +9,7 @@ import ru.yandex.practicum.filmorate.service.MpaService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/mpa")
 public class MpaController {
@@ -21,13 +23,17 @@ public class MpaController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Mpa> get() {
-        return mpaService.getAllMpa();
+    public List<Mpa> getAll() {
+        List<Mpa> mpa = mpaService.getAllMpa();
+        log.info("GET {} mpa", mpa.size());
+        return mpa;
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Mpa get(@PathVariable long id) {
-        return mpaService.getMpaOrNotFoundException(id);
+        Mpa mpa = mpaService.getMpaOrNotFoundException(id);
+        log.info("GET {} mpa", mpa.getId());
+        return mpa;
     }
 }

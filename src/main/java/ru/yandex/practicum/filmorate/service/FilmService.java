@@ -8,9 +8,11 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.EventOperation;
 import ru.yandex.practicum.filmorate.storage.EventType;
+import ru.yandex.practicum.filmorate.storage.FilmSearchBy;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -146,12 +148,12 @@ public class FilmService {
 
     public List<Film> getSortedFilmsOfDirector(long directorId, String sortBy) {
         directorService.getDirectorOrNotFoundException(directorId);
-        switch (sortBy) {
-            case "YEAR":
+        switch (sortPropertyFromString(sortBy)) {
+            case YEAR:
                 List<Film> films = filmStorage.loadFilmsOfDirectorSortedByYears(directorId);
                 log.debug("Return {} films sorted by years", films.size());
                 return films;
-            case "LIKES":
+            case LIKES:
                 films = filmStorage.loadFilmsOfDirectorSortedByRating(directorId);
                 log.debug("Return {} films sorted by rating", films.size());
                 return films;
@@ -161,8 +163,22 @@ public class FilmService {
     }
 
     public List<Film> searchFilmByProperty(String query, String filmSearchProperties) {
-        List<Film> foundFilmList = filmStorage.searchFilmByProperty(query, filmSearchProperties);
+        Set<FilmSearchBy> properties = Arrays.stream(filmSearchProperties.split(","))
+                .map(String::valueOf)
+                .map(String::toUpperCase)
+                .map(FilmSearchBy::valueOf)
+                .collect(Collectors.toSet());
+        List<Film> foundFilmList = filmStorage.searchFilmByProperty(query, properties);
         log.debug("Return film list found by keyword {} and tag {}", query, filmSearchProperties);
         return foundFilmList;
+    }
+
+    private FilmSortingProperties sortPropertyFromString(String sortBy) {
+        for (FilmSortingProperties p : FilmSortingProperties.values()) {
+            if (p.name().equalsIgnoreCase(sortBy)) {
+                return FilmSortingProperties.valueOf(sortBy.toUpperCase());
+            }
+        }
+        return FilmSortingProperties.UNDEFINED;
     }
 }

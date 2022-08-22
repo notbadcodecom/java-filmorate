@@ -25,7 +25,7 @@ public class EventStorageDb implements EventStorage {
 
     @Override
     public List<Event> getEvents(long userId) {
-        String sqlQuery = "SELECT EVENT_ID, TIMESTAMP, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID " +
+        String sqlQuery = "SELECT EVENT_ID, CREATE_TIME, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID " +
                           "FROM EVENTS " +
                           "WHERE USER_ID = ?;";
         return jdbcTemplate.query(sqlQuery, this::mapRowToEvent, userId);
@@ -34,7 +34,7 @@ public class EventStorageDb implements EventStorage {
     private Event mapRowToEvent(ResultSet resultSet, int rowNum) throws SQLException {
         return Event.builder()
                 .eventId(resultSet.getLong("EVENT_ID"))
-                .timestamp(resultSet.getTimestamp("TIMESTAMP").getTime())
+                .timestamp(resultSet.getTimestamp("CREATE_TIME").getTime())
                 .userId(resultSet.getLong("USER_ID"))
                 .eventType(EventType.valueOf(resultSet.getString("EVENT_TYPE")))
                 .operation(EventOperation.valueOf(resultSet.getString("OPERATION")))

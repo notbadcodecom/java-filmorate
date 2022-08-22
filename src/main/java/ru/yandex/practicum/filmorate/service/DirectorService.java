@@ -35,32 +35,38 @@ public class DirectorService {
     }
 
     public Director createDirector(Director director) {
-        long id = directorStorage.saveDirector(director);
-        return getDirectorOrNotFoundException(id);
+        Director savedDirector = directorStorage.saveDirector(director);
+        log.debug("Create {}", savedDirector);
+        return savedDirector;
     }
 
     public Director updateDirector(Director director) {
         Director loadedDirector = getDirectorOrNotFoundException(director.getId());
         loadedDirector.setName(director.getName());
         directorStorage.updateDirector(loadedDirector);
-        return getDirectorOrNotFoundException(director.getId());
+        log.debug("Update {}", loadedDirector);
+        return loadedDirector;
     }
 
     public void deleteDirector(long id) {
         directorStorage.deleteDirector(id);
+        log.debug("Delete director #{}", id);
     }
 
     public void addFilmDirectors(long id, List<Director> directors) {
         directorStorage.saveDirectorsToFilm(id, directors);
+        log.debug("Add {} directors of films #{}", directors.size(), id);
     }
 
     public void updateFilmDirectors(long id, List<Director> directors) {
         directorStorage.deleteDirectorsOfFilm(id);
         directorStorage.saveDirectorsToFilm(id, directors);
+        log.debug("Update {} directors of films #{}", directors.size(), id);
     }
 
     public void deleteFilmDirectors(long id) {
         directorStorage.deleteDirectorsOfFilm(id);
+        log.debug("Delete directors of films #{}", id);
     }
 
     public List<Director> getAllDirectors() {
