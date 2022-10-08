@@ -6,9 +6,13 @@ import org.springframework.stereotype.Service;
 
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.EventOperation;
+import ru.yandex.practicum.filmorate.storage.EventType;
+import ru.yandex.practicum.filmorate.storage.FilmSearchBy;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -17,12 +21,22 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
     private final GenreService genreService;
+    private final EventService eventService;
+    private final DirectorService directorService;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserService userService, GenreService genreService) {
+    public FilmService(
+           FilmStorage filmStorage,
+           UserService userService,
+           GenreService genreService,
+           DirectorService directorService,
+           EventService eventService
+    ) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.genreService = genreService;
+        this.directorService = directorService;
+        this.eventService = eventService;
     }
 
     public Film getFilmOrNotFoundException(long id) {
@@ -39,6 +53,9 @@ public class FilmService {
         long filmId = filmStorage.saveFilm(film);
         if (film.getGenres() != null && film.getGenres().size() > 0) {
             genreService.addFilmGenres(filmId, film.getGenres());
+        }
+        if (film.getDirectors() != null && film.getDirectors().size() > 0) {
+            directorService.addFilmDirectors(filmId, film.getDirectors());
         }
         Film savedFilm = getFilmOrNotFoundException(filmId);
         log.debug("Create {}", savedFilm);
@@ -59,6 +76,11 @@ public class FilmService {
         } else {
             genreService.updateFilmGenres(film.getId(), film.getGenres());
         }
+        if (film.getDirectors() == null || film.getDirectors().size() == 0) {
+            directorService.deleteFilmDirectors(film.getId());
+        } else {
+            directorService.updateFilmDirectors(film.getId(), film.getDirectors());
+        }
         filmStorage.updateFilm(film);
         Film savedFilm = getFilmOrNotFoundException(film.getId());
         log.debug("Update {}", savedFilm);
@@ -71,9 +93,17 @@ public class FilmService {
         return films;
     }
 
+    public List<Film> getUsersCommonFilms(long userId, long friendId) {
+        List<Film> usersCommonFilms = filmStorage.getUsersCommonFilms(userId, friendId);
+        log.debug("Return common films list for users {} and {}", userId, friendId);
+        return usersCommonFilms;
+    }
+
     public void addRatingPoint(long filmId, long userId) {
         getFilmOrNotFoundException(filmId);
         userService.getUserOrNotFoundException(userId);
+        eventService.saveEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
+        log.debug("Saving event: creating rating point for movie #{} from user #{}",  filmId, userId);
         if (filmStorage.hasFilmRatingFromUser(filmId, userId)) {
             log.debug("Attempt to create an existing rating point for movie #{} from user #{}",  filmId, userId);
         } else {
@@ -88,14 +118,67 @@ public class FilmService {
         if (filmStorage.hasFilmRatingFromUser(filmId, userId)) {
             filmStorage.deleteRatingPoint(filmId, userId);
             log.debug("Delete rating point of movie #{} from user #{}",  filmId, userId);
+            eventService.saveEvent(userId, filmId, EventType.LIKE, EventOperation.REMOVE);
+            log.debug("Saving event: delete rating point of movie #{} from user #{}",  filmId, userId);
         } else {
             log.debug("Attempt to delete a non-existent rating point for movie #{} from user #{}", filmId, userId);
         }
     }
 
-    public List<Film> getPopular(long count) {
-        List<Film> popular = filmStorage.loadPopularFilms(count);
+    public List<Film> getPopular(long count, Optional<Long> genreId, Optional<String> year) {
+        List<Film> popular;
+        if (genreId.isPresent() && year.isPresent()) {
+            popular = filmStorage.loadPopularFilms(count, genreId.get(), year.get());
+        } else if (genreId.isPresent()) {
+            popular = filmStorage.loadPopularFilms(count, genreId.get());
+        } else if (year.isPresent()) {
+            popular = filmStorage.loadPopularFilms(count, year.get());
+        } else {
+            popular = filmStorage.loadPopularFilms(count);
+        }
         log.debug("Return {} popular films", popular.size());
         return popular;
+    }
+
+    public void deleteUser(long id){
+        getFilmOrNotFoundException(id);
+        filmStorage.deleteFilm(id);
+        log.debug("Delete  movie #{}", id);
+    }
+
+    public List<Film> getSortedFilmsOfDirector(long directorId, String sortBy) {
+        directorService.getDirectorOrNotFoundException(directorId);
+        switch (sortPropertyFromString(sortBy)) {
+            case YEAR:
+                List<Film> films = filmStorage.loadFilmsOfDirectorSortedByYears(directorId);
+                log.debug("Return {} films sorted by years", films.size());
+                return films;
+            case LIKES:
+                films = filmStorage.loadFilmsOfDirectorSortedByRating(directorId);
+                log.debug("Return {} films sorted by rating", films.size());
+                return films;
+            default:
+                throw new NotFoundException("Not found sorting property");
+        }
+    }
+
+    public List<Film> searchFilmByProperty(String query, String filmSearchProperties) {
+        Set<FilmSearchBy> properties = Arrays.stream(filmSearchProperties.split(","))
+                .map(String::valueOf)
+                .map(String::toUpperCase)
+                .map(FilmSearchBy::valueOf)
+                .collect(Collectors.toSet());
+        List<Film> foundFilmList = filmStorage.searchFilmByProperty(query, properties);
+        log.debug("Return film list found by keyword {} and tag {}", query, filmSearchProperties);
+        return foundFilmList;
+    }
+
+    private FilmSortingProperties sortPropertyFromString(String sortBy) {
+        for (FilmSortingProperties p : FilmSortingProperties.values()) {
+            if (p.name().equalsIgnoreCase(sortBy)) {
+                return FilmSortingProperties.valueOf(sortBy.toUpperCase());
+            }
+        }
+        return FilmSortingProperties.UNDEFINED;
     }
 }

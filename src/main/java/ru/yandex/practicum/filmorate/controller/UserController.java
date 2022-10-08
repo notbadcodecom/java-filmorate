@@ -2,9 +2,12 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validation.Create;
 import ru.yandex.practicum.filmorate.validation.Update;
@@ -16,15 +19,17 @@ import java.util.*;
 public class UserController {
 
     private final UserService userService;
+    private final RecommendationService recommendationService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, RecommendationService recommendationService) {
         this.userService = userService;
+        this.recommendationService = recommendationService;
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<User> get() {
+    public List<User> getAll() {
         return userService.getAllUsers();
     }
 
@@ -46,6 +51,12 @@ public class UserController {
         return userService.update(user);
     }
 
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteUser(@PathVariable long userId){
+        userService.deleteUser(userId);
+    }
+
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
     public void createFriendship(@PathVariable long id, @PathVariable long friendId) {
@@ -64,6 +75,12 @@ public class UserController {
         userService.refuseFriendship(id, friendId);
     }
 
+    @GetMapping("/{id}/feed")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Event> getEvents(@PathVariable long id) {
+        return userService.getEvents(id);
+    }
+
     @GetMapping("/{id}/friends")
     @ResponseStatus(HttpStatus.OK)
     public List<User> getFriends(@PathVariable long id) {
@@ -74,5 +91,9 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public List<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
         return userService.getCommonFriends(id, otherId);
+    }
+    @GetMapping("/{id}/recommendations")
+    ResponseEntity<?> findRecommendationsById(@PathVariable int id) {
+        return ResponseEntity.ok(recommendationService.findRecommendedFilms(id));
     }
 }
