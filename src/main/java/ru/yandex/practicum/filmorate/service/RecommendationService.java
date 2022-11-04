@@ -18,7 +18,6 @@ public class RecommendationService {
     }
 
     public Set<Film> findRecommendedFilms(int id) {
-
         Map<Integer, Set<Integer>> intersectionsOfFilmsWithOtherUsers = findOtherUsersWithMax(id);
         Set<Integer> resultFilmIds = new HashSet<>();
         Set<Film> result = new HashSet<>();
@@ -30,12 +29,12 @@ public class RecommendationService {
             resultFilmIds.addAll(otherUserFilms);
         }
 
-
         for (var filmId : resultFilmIds) {
             result.add(filmStorage.loadFilm(filmId).get());
         }
         return result;
     }
+
     private Map<Integer, Set<Integer>> findOtherUsersWithMax(int id) {
         this.likesOfAllUsers = filmStorage.getUserLikes();
         Set<Integer> targetFilmsUserLikes = likesOfAllUsers.get(id);
@@ -57,6 +56,4 @@ public class RecommendationService {
         }
         return result;
     }
-
-
 }

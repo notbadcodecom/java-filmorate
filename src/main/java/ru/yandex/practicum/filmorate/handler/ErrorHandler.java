@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.handler;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
+@Hidden
 public class ErrorHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

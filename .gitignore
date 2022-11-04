@@ -35,6 +35,3 @@ build/
 ### H2 DataBase ###
 *.mv.db
 *.trace.db
-
-### Postman tests ###
-postman/
