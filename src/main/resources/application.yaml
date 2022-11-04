@@ -9,3 +9,8 @@ spring:
     driverClassName: org.h2.Driver
     username: sa
     password: pass
+springdoc:
+  api-docs.path: /api-docs
+  swagger-ui:
+    path: /swagger.html
+  packagesToScan: ru.yandex.practicum.filmorate
